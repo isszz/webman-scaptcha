@@ -8,9 +8,10 @@
 
 <p>
     <a href="https://packagist.org/packages/isszz/webman-scaptcha"><img src="https://img.shields.io/badge/php->=8.0-8892BF.svg" alt="Minimum PHP Version"></a>
-    <a href="https://packagist.org/packages/isszz/webman-scaptcha"><img src="https://img.shields.io/badge/webman->=1.4-8892BF.svg" alt="Minimum Thinkphp Version"></a>
+    <a href="https://packagist.org/packages/isszz/webman-scaptcha"><img src="https://img.shields.io/badge/webman->=1.4-8892BF.svg" alt="Minimum Webman Version"></a>
     <a href="https://packagist.org/packages/isszz/webman-scaptcha"><img src="https://poser.pugx.org/isszz/webman-scaptcha/v/stable" alt="Stable Version"></a>
     <a href="https://packagist.org/packages/isszz/webman-scaptcha"><img src="https://poser.pugx.org/isszz/webman-scaptcha/downloads" alt="Total Downloads"></a>
+    <a href="https://packagist.org/packages/isszz/webman-scaptcha"><img src="https://img.shields.io/github/last-commit/isszz/webman-scaptcha/main" alt="Last Commit"></a>
     <a href="https://packagist.org/packages/isszz/webman-scaptcha"><img src="https://poser.pugx.org/isszz/webman-scaptcha/license" alt="License"></a>
 </p>
 
