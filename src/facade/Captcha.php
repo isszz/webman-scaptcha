@@ -9,8 +9,8 @@ class Captcha
 
     public static function instance()
     {
-        if (!istatic::$_instance) {
-            static::$_instance = new \isszz\captcha\Captcha::class;
+        if (!static::$_instance) {
+            static::$_instance = new \isszz\captcha\Captcha;
         }
 
         return static::$_instance;
