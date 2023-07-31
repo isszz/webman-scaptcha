@@ -68,7 +68,7 @@ class Font
     	return root_path('config') . 'fonts' . DIRECTORY_SEPARATOR . $name;
     }*/
 
-        /**
+	/**
      * @param $font
      * @return string
      */

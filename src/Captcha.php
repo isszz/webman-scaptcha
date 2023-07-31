@@ -209,7 +209,11 @@ class Captcha
 
         // api模式, 需要使用token机制时
         if ($this->config['api'] && !empty($this->config['token']['store'])) {
-            $this->token = $this->store()->put($text);
+            $this->token = $this->store()->put($text, $this->config['disposable']);
+        }
+
+        if ($this->config['disposable'] == 2) {
+            $text .= '!';
         }
 
         \session()->put('scaptcha', $this->encrypter()->encrypt($text));
@@ -229,7 +233,7 @@ class Captcha
 
         // 携带token则已api模式验证
         if ($token && !empty($this->config['token']['store'])) {
-            $payload = $this->store()->get($token, $this->config['disposable']);
+            $payload = $this->store()->get($token);
 
             if(empty($payload)) {
                 return false;
@@ -252,8 +256,6 @@ class Captcha
             }
 
             if($code == $payload['text']) {
-                // 验证成功删除token
-                // $this->store()->forget($token);
                 return true;
             }
 
@@ -270,9 +272,16 @@ class Captcha
         $hash = \session()->get('scaptcha');
 
         $text = is_null($hash) ? null : $this->encrypter()->decrypt($hash);
+
+        // 检测URL里设置一次性验证码
+        if ($text && str_contains($text, '!')) {
+            $this->config['disposable'] = 2;
+            $text = rtrim($text, '!');
+        }
+
         $res = $code === $text;
 
-        if ($res || $this->config['disposable']) {
+        if ($res || ($this->config['disposable'] && $this->config['disposable'] == 2)) {
             \session()->delete('scaptcha');
         }
 

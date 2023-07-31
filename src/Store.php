@@ -33,7 +33,7 @@ abstract class Store implements StoreInterface
         $this->ttl = $ttl;
     }
 
-    public function buildPayload(string|int $text): array
+    public function buildPayload(string|int $text, string|int $disposable = 0): array
     {
         $ua = request()->header('User-Agent');
 
@@ -42,6 +42,7 @@ abstract class Store implements StoreInterface
             'ip' => request()->getRealIp(),
             'ua' => crc32($ua),
             'ttl' => time() + $this->ttl,
+            'd' => $disposable,
         ], JSON_UNESCAPED_UNICODE);
 
         $token = Str::random(32, 'alnum');
@@ -49,7 +50,7 @@ abstract class Store implements StoreInterface
         return [$token, $this->encrypter->encrypt($payload)];
     }
 
-    abstract public function get(string $token, bool $disposable): array;
-    abstract public function put(string|int $text): string;
+    abstract public function get(string $token): array;
+    abstract public function put(string|int $text, string|int $disposable): string;
     abstract public function forget(string $token): bool;
 }

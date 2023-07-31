@@ -13,9 +13,9 @@ class Controller
     public function index(Captcha $captcha, Request $request, string $path = '')
     {
     	// GET访问check会匹配到这里，所以主动抛出404
-    	if ($path == 'check') {
+    	/*if ($path == 'check') {
     		return not_found();
-    	}
+    	}*/
 
 		$config = [];
 		if($path) {
@@ -85,8 +85,8 @@ class Controller
      */
     public function check(Captcha $captcha, Request $request)
     {
-    	$code = $request->post('code');
-    	$token = $request->post('token');
+    	$code = $request->input('code');
+    	$token = $request->input('token');
 
         $json = [
             'code' => 0,
@@ -138,6 +138,7 @@ class Controller
 	        'n' => 'noise', // 干扰线条数量
 	        'c' => 'color', // 文字是否随机色
 	        'b' => 'background', // 背景色, fefefe
+	        'd' => 'disposable', // 是否一次性验证码
 	    ];
 
 		$config = [];
@@ -157,6 +158,11 @@ class Controller
 	        ];
 
 	        $config['math'] = $mathMapping[$params['m']] ?? 'rand';
+	    }
+
+	    // 是否一次验证码
+	    if (isset($config['disposable'])) {
+	    	$config['disposable'] = (int) $config['disposable'];
 	    }
 
 	    // api模式输出格式1=svg，2=base64

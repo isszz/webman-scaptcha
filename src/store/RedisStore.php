@@ -14,7 +14,7 @@ class RedisStore extends Store
 	 * @param string $token
 	 * @return string
 	 */
-	public function get(string $token, bool $disposable): array
+	public function get(string $token): array
 	{
         $redis = $this->redis();
 
@@ -34,7 +34,7 @@ class RedisStore extends Store
 			return [];
 		}
 
-		$disposable && $redis->forget(self::TOKEN_PRE . $token);
+		($payload['d'] ?? false) && $redis->forget(self::TOKEN_PRE . $token);
 
 		return json_decode($payload, true);
 	}
@@ -43,11 +43,12 @@ class RedisStore extends Store
 	 * Storage token
 	 * 
 	 * @param string|int $text
+	 * @param string|int $disposable
 	 * @return string
 	 */
-	public function put(string|int $text): string
+	public function put(string|int $text, string|int $disposable): string
 	{
-		[$token, $payload] = $this->buildPayload($text);
+		[$token, $payload] = $this->buildPayload($text, $disposable);
 
 		$this->redis()->put(self::TOKEN_PRE . $token, $payload, $this->ttl);
 
@@ -71,7 +72,7 @@ class RedisStore extends Store
 	{
 		$config = $this->captcha->config();
 
-		$config = $config['cross']['redis'] ?? [
+		$config = $config['token']['redis'] ?? [
 	        'host'       => '127.0.0.1',
 	        'port'       => 6379,
 		];

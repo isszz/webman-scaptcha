@@ -6,7 +6,6 @@ namespace isszz\captcha;
 use Webman\Bootstrap as WebmanBootstrap;
 use Workerman\Worker;
 
-
 class Bootstrap implements WebmanBootstrap
 {
     protected static ?\isszz\captcha\Captcha $_instance = null;
