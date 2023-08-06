@@ -56,11 +56,11 @@ class CacheStore extends Store
     public function forget(string $token): bool
     {
 		if(!Cache::has(self::TOKEN_PRE . $token)) {
-			return true;
+			return false;
 		}
 
 		Cache::delete(self::TOKEN_PRE . $token);
 
-		return fakse;
+		return true;
     }
 }

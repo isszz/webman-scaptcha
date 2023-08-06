@@ -185,7 +185,12 @@ class Captcha
         $width = $this->config['width'];
         $height = $this->config['height'];
 
-        $rect = '<rect width="100%" height="100%" fill="#' . ($this->config['background'] ?: 'fefefe') . '"/>';
+        $background = 'transparent';
+        if($this->config['background'] && $this->config['background'] != 'transparent') {
+            $background = '#'. $this->config['background'];
+        }
+        
+        $rect = '<rect width="100%" height="100%" fill="'. $background .'"/>';
         $paths = array_merge($this->getLineNoise($width, $height), $this->getText($text, $width, $height,));
 
         shuffle($paths);
@@ -256,6 +261,8 @@ class Captcha
             }
 
             if($code == $payload['text']) {
+                // 验证成功删除token
+                $this->store()->forget($token);
                 return true;
             }
 
