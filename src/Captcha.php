@@ -29,7 +29,7 @@ class Captcha
         'background' => 'fefefe', // 验证码背景色
         'size' => 4, // 验证码字数
         'ignoreChars' => '', // 验证码字符中排除
-        'fontSize' => 52, // 字体大小
+        'fontSize' => 72, // 字体大小
         'char' => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', // 预设随机字符
         'math' => '', // 计算类型, 如果设置不是+或-则随机两种
         'mathMin' => 1, // 用于计算的最小值
@@ -366,7 +366,7 @@ class Captcha
 
             $charPath = $this->ch2path->get($text[$i], $opts);
 
-            $color = empty($this->config['color']) ? $this->random->greyColor($min, $max) : $this->random->color();
+            $color = $this->config['color'] ? $this->random->color() : $this->random->greyColor($min, $max);
             $out[] = '<path fill="' . $color . '" d="' . $charPath . '"/>';
         }
 

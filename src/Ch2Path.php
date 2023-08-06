@@ -53,7 +53,7 @@ class Ch2Path
         if (!empty($options['cache'])) {
             unset($options['cache']);
             // 取字形缓存
-            $data = $this->cache->get($text) ?: null;
+            $data = $this->cache->get($text .'|'. ($options['size'] ?? 72)) ?: null;
         }
 
         if (is_null($data)) {
@@ -86,7 +86,7 @@ class Ch2Path
             $this->glyph = new Glyph($unitsPerEm/*, $this->fontName*/, $commands);
 
             // get points cache 
-            $points = $this->cache->get($text, 'points');
+            $points = $this->cache->get($text .'|'. $fontSize, 'points');
             $this->glyph->buildPath($points);
         }
 
@@ -161,16 +161,16 @@ class Ch2Path
     {
         $code = Str::unicode($text);
 
-	    if ($this->glyphMaps) {
+        if ($this->glyphMaps) {
             foreach($this->glyphMaps as $unicode => $glyphIndex) {
                 if($unicode == $code) {
                     return $glyphIndex;
                 }
             }
-	    }
+        }
 
-	    return null;
-	}
+        return null;
+    }
 
     /**
      * 获取需要的字形数据
