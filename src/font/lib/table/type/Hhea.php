@@ -14,7 +14,7 @@ use isszz\captcha\font\lib\table\Table;
  *
  * @package php-font-lib
  */
-class hhea extends Table
+class Hhea extends Table
 {
 	protected $def = [
 		"version"             => self::Fixed,

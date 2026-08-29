@@ -47,7 +47,7 @@ class Post extends Table
 
 				$data["glyphNameIndex"] = $glyphNameIndex;
 
-				$namesPascal = array();
+				$namesPascal = [];
 				for ($i = 0; $i < $data["numberOfGlyphs"]; $i++) {
 					$len           = $font->readUInt8();
 					$namesPascal[] = $font->read($len);
@@ -58,7 +58,9 @@ class Post extends Table
 						$names[$g] = File::$macCharNames[$index];
 					}
 					else {
-						$names[$g] = $namesPascal[$index - 258];
+						if (array_key_exists($index - 258, $namesPascal)) {
+							$names[$g] = $namesPascal[$index - 258];
+						}
 					}
 				}
 				break;

@@ -32,9 +32,17 @@ class CacheStore extends Store
 			return [];
 		}
 
-		($payload['d'] ?? false) && Cache::delete(self::TOKEN_PRE . $token);
+		$data = json_decode($payload, true);
 
-		return json_decode($payload, true);
+		if(!is_array($data)) {
+			return [];
+		}
+
+		if (!empty($data['d'])) {
+			Cache::delete(self::TOKEN_PRE . $token);
+		}
+
+		return $data;
 	}
 	
 	/**
@@ -44,7 +52,7 @@ class CacheStore extends Store
 	 * @param string|int $disposable
 	 * @return string
 	 */
-	public function put(string|int $text, string|int $disposable): string
+	public function put(string|int $text, string|int|bool $disposable): string
 	{
 		[$token, $payload] = $this->buildPayload($text, $disposable);
 

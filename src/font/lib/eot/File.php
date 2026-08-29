@@ -71,14 +71,14 @@ class File extends \isszz\captcha\font\lib\truetype\File
 	 *
 	 * @return string
 	 */
-	public function read($n)
+	public function read($n): string
 	{
 		if ($n < 1) {
 			return "";
 		}
 
-		$string = fread($this->f, $n);
-		$chunks = str_split($string, 2);
+		$string = (string) fread($this->f, $n);
+		$chunks = mb_str_split($string, 2, '8bit');
 		$chunks = array_map("strrev", $chunks);
 
 		return implode("", $chunks);

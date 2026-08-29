@@ -251,11 +251,11 @@ class OutlineSimple extends Outline
 		$l += $font->writeFWord(isset($this->yMax) ? $this->yMax : $yMax); // yMax
 
 		// Simple glyf
-		$l += $font->w(array(self::uint16, count($endPtsOfContours)), $endPtsOfContours); // endPtsOfContours
+		$l += $font->w([self::uint16, count($endPtsOfContours)], $endPtsOfContours); // endPtsOfContours
 		$l += $font->writeUInt16(0); // instructionLength
-		$l += $font->w(array(self::uint8, count($flags)), $flags); // flags
-		$l += $font->w(array(self::int16, count($coords_x)), $coords_x); // xCoordinates
-		$l += $font->w(array(self::int16, count($coords_y)), $coords_y); // yCoordinates
+		$l += $font->w([self::uint8, count($flags)], $flags); // flags
+		$l += $font->w([self::int16, count($coords_x)], $coords_x); // xCoordinates
+		$l += $font->w([self::int16, count($coords_y)], $coords_y); // yCoordinates
 		return $l;
 	}
 

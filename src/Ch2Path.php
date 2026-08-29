@@ -27,15 +27,10 @@ class Ch2Path
     public $fontName;
     public $cache;
 
-    public function __construct(string $font = '')
+    public function __construct(?string $font = '')
     {
-        /*if(empty($font)) {
-            throw new CaptchaException('The font file name cannot be empty');
-        }*/
-
         $this->fontName = $font ?: __DIR__ . '/fonts/Comismsh.ttf';
         $this->cache = Cache::make($this->fontName);
-        // $this->getGlyph($font);
     }
 
     /**
@@ -47,47 +42,50 @@ class Ch2Path
      */
     public function get($text, $options)
     {
+        $fontSize = $options['size'] ?? 72;
+        $cacheKey = $text .'|'. $fontSize;
         $data = null;
 
         // 开启缓存字形
         if (!empty($options['cache'])) {
             unset($options['cache']);
             // 取字形缓存
-            $data = $this->cache->get($text .'|'. ($options['size'] ?? 72)) ?: null;
+            $data = $this->cache->get($cacheKey) ?: null;
         }
 
-        if (is_null($data)) {
+        if ($data === null) {
             $this->getGlyph($this->fontName);
 
-            if(empty($this->font)) {
+            if (empty($this->font)) {
                 throw new CaptchaException('Please load the font first.');
             }
 
-            $fontSize = $options['size'];
             $unitsPerEm = $this->unitsPerEm;
             $ascender = $this->ascender;
             $descender = $this->descender;
             $fontScale = bcdiv("{$fontSize}", "{$unitsPerEm}", 18);
 
-            $this->glyph = new Glyph($unitsPerEm/*, $this->fontName*/);
-
-            $glyphWidth = $this->charToGlyphPath($text);
+            $this->glyph = new Glyph($unitsPerEm);
+            $glyphWidth = $this->charToGlyphPath($text, $fontSize);
 
         } else {
             $fontSize = $data['size'];
             $unitsPerEm = $data['unitsPerEm'];
-            $fontScale = bcdiv("{$fontSize}", "{$unitsPerEm}", 18);
+            $fontScale = $data['scale'] ?? bcdiv("{$fontSize}", "{$unitsPerEm}", 18);
             $ascender = $data['ascender'];
             $descender = $data['descender'];
 
             $glyphWidth = $data['glyphWidth'];
 
-            $commands = $data['commands'] ?? [];
-            $this->glyph = new Glyph($unitsPerEm/*, $this->fontName*/, $commands);
-
-            // get points cache 
-            $points = $this->cache->get($text .'|'. $fontSize, 'points');
-            $this->glyph->buildPath($points);
+            // get points cache first to decide whether to use cached commands
+            $points = $this->cache->get($cacheKey, 'points');
+            if (is_array($points) && !empty($points)) {
+                $this->glyph = new Glyph($unitsPerEm);
+                $this->glyph->buildPath($points);
+            } else {
+                $commands = $data['commands'] ?? [];
+                $this->glyph = new Glyph($unitsPerEm, $commands);
+            }
         }
 
         $width = $glyphWidth * $fontScale;
@@ -97,9 +95,9 @@ class Ch2Path
 
         $path = $this->glyph->getPath($left, $top - 4, $fontSize);
 
-        if (is_null($data)) {
+        if ($data === null) {
             // 写入缓存
-            $this->cache->put($text, [
+            $this->cache->put($cacheKey, [
                 'text' => $text,
                 'size' => $fontSize,
                 'scale' => $fontScale,
@@ -112,7 +110,7 @@ class Ch2Path
         }
 
         foreach($path->commands as $key => $cmd) {
-            $path->commands[$key] =$this->rndPathCmd($cmd);
+            $path->commands[$key] = $this->rndPathCmd($cmd);
         }
 
         return $path->PathData();
@@ -122,15 +120,20 @@ class Ch2Path
      * 获取文字的glyph
      * 
      * @param  string  $text
+     * @param  int  $fontSize
      * @return object
      */
-    public function charToGlyphPath($text)
+    public function charToGlyphPath($text, $fontSize = 72)
     {
         $glyphIndex = $this->charToGlyphIndex($text);
 
+        if ($glyphIndex === null) {
+            throw new CaptchaException('Glyph does not exist.');
+        }
+
         $glyph = Arr::get($this->glyphs, $glyphIndex);
 
-        if(empty($glyph)) {
+        if (empty($glyph)) {
             throw new CaptchaException('Glyph does not exist.');
         }
         
@@ -140,10 +143,10 @@ class Ch2Path
             throw new CaptchaException('Error parsing glyph containing unsupported characters or corrupted fonts.');
         }
 
-        $glyphWidth  = (abs($glyph->xMin) + $glyph->xMax);
+        $glyphWidth  = $glyph->xMax - $glyph->xMin;
 
         // add points cache
-        $this->cache->put($text, $glyph->points, 'points');
+        $this->cache->put($text .'|'. $fontSize, $glyph->points, 'points');
 
         // build path
         $this->glyph->buildPath($glyph->points);
@@ -155,21 +158,17 @@ class Ch2Path
      * 获取文字的glyph索引id
      * 
      * @param  string  $text
-     * @return void
+     * @return int|null
      */
     public function charToGlyphIndex($text)
     {
         $code = Str::unicode($text);
 
-        if ($this->glyphMaps) {
-            foreach($this->glyphMaps as $unicode => $glyphIndex) {
-                if($unicode == $code) {
-                    return $glyphIndex;
-                }
-            }
+        if (!$this->glyphMaps) {
+            return null;
         }
 
-        return null;
+        return $this->glyphMaps[$code] ?? null;
     }
 
     /**
@@ -179,7 +178,7 @@ class Ch2Path
      */
     public function getGlyph(string $font = '')
     {
-        if (!is_null($this->font)) {
+        if ($this->font !== null) {
             return false;
         }
 

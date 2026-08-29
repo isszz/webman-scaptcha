@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace isszz\captcha\font;
 
@@ -97,10 +98,10 @@ class Path
             }
         };
 
-        $packValues = function() use($floatToString) {
-            $arguments = func_get_args();
+        $packValues = function(...$arguments) use($floatToString) {
             $s = '';
-            for ($i = 0; $i < count($arguments); $i += 1) {
+            $argCount = count($arguments);
+            for ($i = 0; $i < $argCount; $i += 1) {
                 $v = $arguments[$i];
                 if ($v >= 0 && $i > 0) {
                     $s .= ' ';
@@ -112,7 +113,8 @@ class Path
         };
 
         $d = '';
-        for ($i = 0; $i < count($this->commands); $i += 1) {
+        $commandCount = count($this->commands);
+        for ($i = 0; $i < $commandCount; $i += 1) {
             $cmd = $this->commands[$i];
             if ($cmd['type'] == 'M') {
                 $d .= 'M' . $packValues($cmd['x'], $cmd['y']);

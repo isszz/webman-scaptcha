@@ -49,11 +49,11 @@ class File extends \isszz\captcha\font\lib\truetype\File
 			$data = $this->read($entry->length);
 
 			if ($entry->length < $entry->origLength) {
-				$data = gzuncompress($data);
+				$data = (string) gzuncompress($data);
 			}
 
 			// Prepare data ...
-			$length        = strlen($data);
+			$length        = mb_strlen($data, '8bit');
 			$entry->length = $entry->origLength = $length;
 			$entry->offset = $dataOffset;
 
@@ -78,7 +78,7 @@ class File extends \isszz\captcha\font\lib\truetype\File
 
 		// Need to re-parse this, don't know why
 		$this->header    = null;
-		$this->directory = array();
+		$this->directory = [];
 		$this->parseTableEntries();
 	}
 }

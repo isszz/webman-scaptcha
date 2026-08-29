@@ -29,6 +29,7 @@ class Glyf extends Table
 		$real_loca = array_slice($loca, 0, -1); // Not the last dummy loca entry
 
 		$data = [];
+
 		foreach ($real_loca as $gid => $location) {
 			$_offset    = $offset + $loca[$gid];
 			$_size      = $loca[$gid + 1] - $loca[$gid];
@@ -49,13 +50,8 @@ class Glyf extends Table
 
 		return array_unique(array_merge($gids, $glyphIDs));
 	}
-	
-	public function charToGlyph($text)
-	{
-		$font = $this->getFont();
-	}
 
-	public function toHTML()
+	public function toHTML($n = 500)
 	{
 		$max  = 160;
 		$font = $this->getFont();
@@ -82,21 +78,19 @@ class Glyf extends Table
 			$height = round($height / $ratio);
 		}
 
-		$n = 500;
-
 		$s = "<h3>" . "Only the first $n simple glyphs are shown (" . count($this->data) . " total)
-		<div class='glyph-view simple'>Simple glyph</div>
-		<div class='glyph-view composite'>Composite glyph</div>
-		Zoom: <input type='range' value='100' max='400' onchange='Glyph.resize(this.value)' />
-		</h3>
-		<script>
-			Glyph.ratio  = $ratio;
-			Glyph.head   = $head_json;
-			Glyph.os2    = $os2_json;
-			Glyph.hmtx   = $hmtx_json;
-			Glyph.width  = $width;
-			Glyph.height = $height;
-		</script>";
+    <div class='glyph-view simple'>Simple glyph</div>
+    <div class='glyph-view composite'>Composite glyph</div>
+    Zoom: <input type='range' value='100' max='400' onchange='Glyph.resize(this.value)' />
+    </h3>
+    <script>
+      Glyph.ratio  = $ratio;
+      Glyph.head   = $head_json;
+      Glyph.os2    = $os2_json;
+      Glyph.hmtx   = $hmtx_json;
+      Glyph.width  = $width;
+      Glyph.height = $height;
+    </script>";
 
 		foreach ($this->data as $g => $glyph) {
 			if ($n-- <= 0) {
@@ -119,11 +113,16 @@ class Glyf extends Table
 			$name = isset($names[$g]) ? $names[$g] : sprintf("uni%04x", $char);
 			$char = $char ? "&#{$glyphIndexArray[$g]};" : "";
 
+			if ($char === "" && empty($shape["SVGContours"])) {
+				$n++;
+				continue;
+			}
+
 			$s .= "<div class='glyph-view $type' id='glyph-$g'>
-							<span class='glyph-id'>$g</span>
-							<span class='char'>$char</span>
-							<span class='char-name'>$name</span>
-							";
+              <span class='glyph-id'>$g</span>
+              <span class='char'>$char</span>
+              <span class='char-name'>$name</span>
+              ";
 
 			if ($type == "composite") {
 				foreach ($glyph->getGlyphIDs() as $_id) {
@@ -132,9 +131,9 @@ class Glyf extends Table
 			}
 
 			$s .= "<br />
-						<canvas width='$width' height='$height' id='glyph-canvas-$g'></canvas>
-						</div>
-						<script>Glyph.glyphs.push([$g,$shape_json]);</script>";
+            <canvas width='$width' height='$height' id='glyph-canvas-$g'></canvas>
+            </div>
+            <script>Glyph.glyphs.push([$g,$shape_json]);</script>";
 		}
 
 		return $s;
@@ -152,8 +151,9 @@ class Glyf extends Table
 		$length = 0;
 		foreach ($subset as $gid) {
 			$loca[] = $length;
+
 			$bytes = $data[$gid]->encode();
-			
+
 			$pad = 0;
 			$mod = $bytes % 4;
 			if ($mod != 0) {
@@ -163,7 +163,7 @@ class Glyf extends Table
 			$length += $bytes + $pad;
 		}
 
-		$loca[] = $length; // dummy loca
+		$loca[]                             = $length; // dummy loca
 		$font->getTableObject("loca")->data = $loca;
 
 		return $length;

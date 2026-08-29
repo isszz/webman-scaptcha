@@ -34,9 +34,17 @@ class RedisStore extends Store
 			return [];
 		}
 
-		($payload['d'] ?? false) && $redis->forget(self::TOKEN_PRE . $token);
+		$data = json_decode($payload, true);
 
-		return json_decode($payload, true);
+		if(!is_array($data)) {
+			return [];
+		}
+
+		if (!empty($data['d'])) {
+			$redis->forget(self::TOKEN_PRE . $token);
+		}
+
+		return $data;
 	}
 	
 	/**
@@ -46,7 +54,7 @@ class RedisStore extends Store
 	 * @param string|int $disposable
 	 * @return string
 	 */
-	public function put(string|int $text, string|int $disposable): string
+	public function put(string|int $text, string|int|bool $disposable): string
 	{
 		[$token, $payload] = $this->buildPayload($text, $disposable);
 

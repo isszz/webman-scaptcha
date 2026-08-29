@@ -61,18 +61,18 @@ class BinaryStream
 	 * @param string $filename The file name of the font to open
 	 * @param string $mode     The opening mode
 	 *
-	 * @throws FontLibException
+	 * @throws \Exception
 	 * @return bool
 	 */
-	public function open($filename, $mode = self::modeRead)
+	public function open($filename, $mode = self::modeRead): bool
 	{
-		if (!in_array($mode, array(self::modeRead, self::modeWrite, self::modeReadWrite))) {
-			throw new FontLibException('Unkown file open mode');
+		if (!in_array($mode, [self::modeRead, self::modeWrite, self::modeReadWrite], true)) {
+			throw new \Exception('Unknown file open mode');
 		}
 
 		$this->f = fopen($filename, $mode);
 
-		return $this->f != false;
+		return $this->f !== false;
 	}
 
 	/**
@@ -80,7 +80,7 @@ class BinaryStream
 	 */
 	public function close()
 	{
-		return fclose($this->f) != false;
+		return fclose($this->f) !== false;
 	}
 
 	/**
@@ -88,12 +88,12 @@ class BinaryStream
 	 *
 	 * @param resource $fp
 	 *
-	 * @throws FontLibException
+	 * @throws \Exception
 	 */
-	public function setFile($fp)
+	public function setFile($fp): void
 	{
 		if (!is_resource($fp)) {
-			throw new FontLibException('$fp is not a valid resource');
+			throw new \Exception('$fp is not a valid resource');
 		}
 
 		$this->f = $fp;
@@ -129,7 +129,7 @@ class BinaryStream
 	 */
 	public function seek($offset)
 	{
-		return fseek($this->f, $offset, SEEK_SET) == 0;
+		return fseek($this->f, (int)$offset, SEEK_SET) == 0;
 	}
 
 	/**
@@ -147,13 +147,13 @@ class BinaryStream
 		fseek($this->f, $n, SEEK_CUR);
 	}
 
-	public function read($n)
+	public function read($n): string
 	{
 		if ($n < 1) {
 			return '';
 		}
 
-		return fread($this->f, $n);
+		return (string) fread($this->f, $n);
 	}
 
 	public function write($data, $length = null)
@@ -167,7 +167,11 @@ class BinaryStream
 
 	public function readUInt8()
 	{
-		return ord($this->read(1));
+		$byte = $this->read(1);
+		if ($byte === '') {
+			return 0;
+		}
+		return ord($byte);
 	}
 
 	public function readUInt8Many($count)
@@ -193,7 +197,7 @@ class BinaryStream
 
 	public function readInt8Many($count)
 	{
-		return array_values(@unpack('c*', $this->read($count)));
+		return array_values(unpack('c*', $this->read($count)));
 	}
 
 	public function writeInt8($data)
@@ -207,10 +211,13 @@ class BinaryStream
 
 	public function readUInt16()
 	{
-		// fix zz
-		$a = @unpack('nn', $this->read(2));
+		$data = $this->read(2);
+		if (mb_strlen($data, '8bit') < 2) {
+			return 0;
+		}
 
-		return $a['n'] ?? '';
+		$a = unpack('nn', $data);
+		return (int) $a['n'];
 	}
 
 	public function readUInt16Many($count)
@@ -235,8 +242,13 @@ class BinaryStream
 
 	public function readInt16()
 	{
-		$a = unpack('nn', $this->read(2));
-		$v = $a['n'];
+		$data = $this->read(2);
+		if (mb_strlen($data, '8bit') < 2) {
+			return 0;
+		}
+
+		$a = unpack('nn', $data);
+		$v = (int) $a['n'];
 
 		if ($v >= 0x8000) {
 			$v -= 0x10000;
@@ -278,8 +290,13 @@ class BinaryStream
 
 	public function readUInt32()
 	{
-		$a = unpack('NN', $this->read(4));
-		return $a['N'];
+		$data = $this->read(4);
+		if (mb_strlen($data, '8bit') < 4) {
+			return 0;
+		}
+
+		$a = unpack('NN', $data);
+		return (int) $a['N'];
 	}
 
 	public function writeUInt32($data)
@@ -328,7 +345,7 @@ class BinaryStream
 
 	public function unpack($def)
 	{
-		$d = array();
+		$d = [];
 		foreach ($def as $name => $type) {
 			$d[$name] = $this->r($type);
 		}

@@ -25,20 +25,20 @@ class AdobeFontMetrics
 	 */
 	private $font;
 
-	public function __construct(File $font)
+	function __construct(File $font)
 	{
 		$this->font = $font;
 	}
 
-	public function write($file, $encoding = null)
+	function write($file, $encoding = null)
 	{
 		$map_data = [];
 
 		if ($encoding) {
 			$encoding = preg_replace("/[^a-z0-9-_]/", "", $encoding);
-			$map_file = dirname(__FILE__) . "/../maps/$encoding.map";
+			$map_file = dirname(__FILE__) . "/../../maps/$encoding.map";
 			if (!file_exists($map_file)) {
-				throw new FontLibException("Unkown encoding ($encoding)");
+				throw new \Exception("Unknown encoding ($encoding)");
 			}
 
 			$map      = new EncodingMap($map_file);
@@ -51,18 +51,18 @@ class AdobeFontMetrics
 
 		$this->startSection("FontMetrics", 4.1);
 		$this->addPair("Notice", "Converted by PHP-font-lib");
-		$this->addPair("Comment", "https://github.com/PhenX/php-font-lib");
+		$this->addPair("Comment", "https://github.com/dompdf/php-font-lib");
 
 		$encoding_scheme = ($encoding ? $encoding : "FontSpecific");
 		$this->addPair("EncodingScheme", $encoding_scheme);
 
 		$records = $font->getData("name", "records");
 		foreach ($records as $id => $record) {
-			if (!isset(Name::$nameIdCodes[$id]) || preg_match("/[\r\n]/", $record->string)) {
+			if (!isset(name::$nameIdCodes[$id]) || preg_match("/[\r\n]/", $record->string)) {
 				continue;
 			}
 
-			$this->addPair(Name::$nameIdCodes[$id], $record->string);
+			$this->addPair(name::$nameIdCodes[$id], $record->string);
 		}
 
 		$os2 = $font->getData("OS/2");
@@ -78,12 +78,47 @@ class AdobeFontMetrics
 
 		if (isset($hhea["ascent"])) {
 			$this->addPair("FontHeightOffset", $font->normalizeFUnit($hhea["lineGap"]));
-			$this->addPair("Ascender", $font->normalizeFUnit($hhea["ascent"]));
-			$this->addPair("Descender", $font->normalizeFUnit($hhea["descent"]));
-		}
-		else {
+		} else {
 			$this->addPair("FontHeightOffset", $font->normalizeFUnit($os2["typoLineGap"]));
+		}
+
+		$glyf = $font->getData("glyf");
+		$glyphIndexArray = $font->getUnicodeCharMap();
+		$hasGlyphs = $glyf instanceof glyf && is_array($glyphIndexArray);
+
+		// capHeight is based on capital H
+		if ($hasGlyphs && \array_key_exists(72, $glyphIndexArray)) {
+			$upperH = $glyf[$glyphIndexArray[72]];
+			$upperH->parseData();
+			$this->addPair("CapHeight", $font->normalizeFUnit($upperH->yMax));
+		}
+
+		// xHeight is based on lowercase x
+		if ($hasGlyphs && \array_key_exists(120, $glyphIndexArray)) {
+			$lowerX = $glyf[$glyphIndexArray[120]];
+			$lowerX->parseData();
+			$this->addPair("XHeight", $font->normalizeFUnit($lowerX->yMax));
+		}
+
+		// ascender is based on lowercase d
+		if ($hasGlyphs && \array_key_exists(100, $glyphIndexArray)) {
+			$lowerD = $glyf[$glyphIndexArray[100]];
+			$lowerD->parseData();
+			$this->addPair("Ascender", $font->normalizeFUnit($lowerD->yMax));
+		} elseif (isset($hhea["ascent"])) {
+			$this->addPair("Ascender", $font->normalizeFUnit($hhea["ascent"]));
+		} else {
 			$this->addPair("Ascender", $font->normalizeFUnit($os2["typoAscender"]));
+		}
+
+		// descender is based on lowercase p
+		if ($hasGlyphs && \array_key_exists(112, $glyphIndexArray)) {
+			$lowerP = $glyf[$glyphIndexArray[112]];
+			$lowerP->parseData();
+			$this->addPair("Descender", $font->normalizeFUnit($lowerP->yMin));
+		} elseif (isset($hhea["descent"])) {
+			$this->addPair("Descender", $font->normalizeFUnit($hhea["descent"]));
+		} else {
 			$this->addPair("Descender", -abs($font->normalizeFUnit($os2["typoDescender"])));
 		}
 
@@ -94,8 +129,6 @@ class AdobeFontMetrics
 			$font->normalizeFUnit($head["xMax"]),
 			$font->normalizeFUnit($head["yMax"]),
 		]);
-
-		$glyphIndexArray = $font->getUnicodeCharMap();
 
 		if ($glyphIndexArray) {
 			$hmtx  = $font->getData("hmtx");
@@ -189,21 +222,22 @@ class AdobeFontMetrics
 		$this->endSection("FontMetrics");
 	}
 
-	public function addLine($line)
+	function addLine($line)
 	{
 		fwrite($this->f, "$line\n");
 	}
 
-	public function addPair($key, $value)
+	function addPair($key, $value)
 	{
 		$this->addLine("$key $value");
 	}
 
-	public function addArray($key, $array) {
-	$this->addLine("$key " . implode(" ", $array));
+	function addArray($key, $array)
+	{
+		$this->addLine("$key " . implode(" ", $array));
 	}
 
-	public function addMetric($data)
+	function addMetric($data)
 	{
 		$array = [];
 		foreach ($data as $key => $value) {
@@ -212,12 +246,12 @@ class AdobeFontMetrics
 		$this->addLine(implode(" ; ", $array));
 	}
 
-	public function startSection($name, $value = "")
+	function startSection($name, $value = "")
 	{
 		$this->addLine("Start$name $value");
 	}
 
-	public function endSection($name)
+	function endSection($name)
 	{
 		$this->addLine("End$name");
 	}

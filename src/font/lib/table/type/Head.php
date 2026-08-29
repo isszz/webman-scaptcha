@@ -15,9 +15,8 @@ use Exception;
  *
  * @package php-font-lib
  */
-class head extends Table
+class Head extends Table
 {
-
 	protected $def = [
 		"tableVersion"       => self::Fixed,
 		"fontRevision"       => self::Fixed,
@@ -46,6 +45,7 @@ class head extends Table
 			throw new Exception("Incorrect magic number (" . dechex($this->data["magicNumber"]) . ")");
 		}
 	}
+
 	function _encode()
 	{
 		$this->data["checkSumAdjustment"] = 0;

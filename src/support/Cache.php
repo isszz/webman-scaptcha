@@ -22,19 +22,18 @@ class Cache
      * 获取字形缓存
      * 
      * @param  string|int  $text
-     * @return string
+     * @return array|string|null
      */
     public function get(string|int $text, $type = 'glyf')
     {
         $file = $this->getPath($text, $type);
 
-        if(is_file($file)) {
-            return (static function () use ($file) {
-                return require $file;
-            })();
+        if (is_file($file)) {
+            $content = File::read($file);
+            return $content ? json_decode($content, true) : null;
 		}
 		
-        return '';
+        return null;
     }
 
     /**
@@ -47,14 +46,15 @@ class Cache
     public function put(string|int $text, ?array $data = null, string $type = 'glyf')
     {
         $file = $this->getPath($text, $type);
-        return File::savePhpData($file, $data) ? true : false;
+        $content = json_encode($data, JSON_UNESCAPED_UNICODE);
+        return File::write($file, $content, 'rb+', true, true, true) !== false;
     }
 
     public function getPath(string|int $text, string $type = 'glyf')
     {
         $path = \runtime_path('scaptcha'). DIRECTORY_SEPARATOR .'glyph'. DIRECTORY_SEPARATOR . $this->fontName . DIRECTORY_SEPARATOR;
 
-        $path .= ($type === 'base' ? '' : $type . DIRECTORY_SEPARATOR) . md5($text) .'.php';
+        $path .= ($type === 'base' ? '' : $type . DIRECTORY_SEPARATOR) . md5($text) .'.json';
 
         return $path;
     }
@@ -67,7 +67,7 @@ class Cache
      */
     public static function delete($directory = null)
     {
-        if(is_null($directory)) {
+        if ($directory === null) {
             $directory = \runtime_path('scaptcha'. DIRECTORY_SEPARATOR .'glyph');
         }
 

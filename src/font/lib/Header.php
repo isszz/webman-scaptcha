@@ -7,7 +7,7 @@
  */
 namespace isszz\captcha\font\lib;
 
-use isszz\captcha\font\lib\TrueType\File;
+use isszz\captcha\font\lib\truetype\File;
 
 /**
  * Font header container.

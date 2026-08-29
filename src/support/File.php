@@ -13,7 +13,7 @@ class File
 	 * @param  int     $chmod
 	 * @return void
 	 */
-	public static function mkdir($path, $chmod = 0777)
+	public static function mkdir($path, $chmod = 0755)
 	{
 		return (!is_dir($path)) ? mkdir($path, $chmod, true) : true;
 	}
@@ -47,7 +47,7 @@ class File
 		$writeCheck = fwrite($handle, $data);
 		$method == 'rb+' && ftruncate($handle, strlen($data));
 		fclose($handle);
-		$ifChmod && chmod($fileName, 0777);
+		$ifChmod && chmod($fileName, 0644);
 
 		return $writeCheck;
 	}

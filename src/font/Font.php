@@ -19,11 +19,20 @@ class Font
 			throw new CaptchaException('Font file name cannot be empty.');
 		}
 
-		if($file = self::getFontPath($font) and !is_file($file)) {
+		$file = self::getFontPath($font);
+		$realFile = realpath($file);
+		if ($realFile === false || !is_file($realFile)) {
 			throw new CaptchaException('Font not found in: ' . $file);
 		}
 
-		$header = file_get_contents($file, false, null, 0, 4);
+		$projectRoot = dirname(__DIR__, 2);
+		$tmpRoot = sys_get_temp_dir();
+		if (!str_starts_with($realFile, $projectRoot) && !str_starts_with($realFile, $tmpRoot)) {
+			throw new CaptchaException('Font file path is not allowed: ' . $file);
+		}
+		$file = $realFile;
+
+		$header = (string) file_get_contents($file, false, null, 0, 4);
 		$obj = null;
 		switch ($header) {
 			case "\x00\x01\x00\x00":
@@ -49,7 +58,7 @@ class Font
 				}
 		}
 		
-		if (!is_null($obj)) {
+		if ($obj !== null) {
 			$obj->load($file);
 			return $obj;
 		}

@@ -32,7 +32,7 @@ return [
     'token' => [
         // 也可以自定义\app\common\libs\MyStore::class
         // 自带可选：redis，session；建议使用redis
-        'store' => 'cache', 
+        'store' => 'redis', 
         'expire' => 300,
         'redis' => [
             'host' => '127.0.0.1',

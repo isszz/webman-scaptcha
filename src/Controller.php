@@ -10,8 +10,9 @@ class Controller
 	/**
 	 * 输出为SVG代码，一般用于接口
 	 */
-	public function index(Captcha $captcha, Request $request, string $path = '')
+	public function index(Request $request, string $path = '')
 	{
+		$captcha = new Captcha;
 		// GET访问check会匹配到这里，所以主动抛出404
 		/*if ($path == 'check') {
 			return not_found();
@@ -19,10 +20,10 @@ class Controller
 
 		$config = [];
 		if($path) {
-			$config = $this->BuildParam($path);
+			$config = $this->buildParam($path);
 		}
 
-		if (isset($config['reset'])) {
+		if (isset($config['reset']) && config('app.debug')) {
 			$captcha->deleteCache();
 		}
 
@@ -55,22 +56,26 @@ class Controller
 	/**
 	 * 输出为可视SVG图片
 	 */
-	public function svg(Captcha $captcha, Request $request, string $path = '')
+	public function svg(Request $request, string $path = '')
 	{
+		$captcha = new Captcha;
 		$config = [];
 		if($path) {
 			$config = $this->buildParam($path);
 		}
 
-		if (isset($config['reset'])) {
+		if (isset($config['reset']) && config('app.debug')) {
 			$captcha->deleteCache();
 		}
 
-		$content = (string) $captcha->create($config);
+		try {
+			$content = (string) $captcha->create($config);
+		} catch (\Exception $e) {
+			return response('', 500, ['Content-Type' => 'image/svg+xml']);
+		}
 
 		$headers = [
 			'Content-Type' => 'image/svg+xml',
-			'Content-Length' => strlen($content),
 		];
 
 		if (config('app.debug')) {
@@ -83,7 +88,7 @@ class Controller
 	/**
 	 * 验证|输出json
 	 */
-	public function check(Captcha $captcha, Request $request)
+	public function check(Request $request)
 	{
 		$code = $request->input('code');
 		$token = $request->input('token');
@@ -93,18 +98,20 @@ class Controller
 			'msg' => 'success',
 		];
 
-		if (!$code) {
+		if ($code === null || $code === '') {
 			$json['code'] = 2;
 			$json['msg'] = 'The Captcha code cannot be empty';
 			return json($json);
 		}
 
+		$captcha = new Captcha;
+
 		try {
-			if (!$captcha->check($code, $token)) {
+			if (!$captcha->check((string) $code, $token)) {
 				$json['code'] = 1;
 				$json['msg'] = 'Captcha code error';
 			}
-		} catch (\CaptchaException $e) {
+		} catch (CaptchaException $e) {
 			$json['code'] = 3;
 			$json['msg'] = $e->getMessage();
 		} catch (\Exception $e) {

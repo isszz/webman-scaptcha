@@ -4,8 +4,8 @@ namespace isszz\captcha;
 
 class CaptchaException extends \Exception
 {
-    public function __construct(mixed $message = null)
+    public function __construct(?string $message = null)
     {
-        !is_null($message) && $this->message = $message;
+        parent::__construct($message ?? '');
     }
 }

@@ -32,7 +32,7 @@ class Collection extends BinaryStream implements Iterator, Countable
 	protected $version;
 	protected $numFonts;
 
-	public function parse()
+	function parse()
 	{
 		if (isset($this->numFonts)) {
 			return;
@@ -54,7 +54,7 @@ class Collection extends BinaryStream implements Iterator, Countable
 	 * @throws OutOfBoundsException
 	 * @return File
 	 */
-	public function getFont($fontId)
+	function getFont($fontId)
 	{
 		$this->parse();
 
@@ -73,34 +73,40 @@ class Collection extends BinaryStream implements Iterator, Countable
 		return $this->collection[$fontId] = $font;
 	}
 
-	public function current()
+	#[\ReturnTypeWillChange]
+	function current()
 	{
 		return $this->getFont($this->position);
 	}
 
-	public function key()
+	#[\ReturnTypeWillChange]
+	function key()
 	{
 		return $this->position;
 	}
 
-	public function next()
+	#[\ReturnTypeWillChange]
+	function next()
 	{
 		return ++$this->position;
 	}
 
-	public function rewind()
+	#[\ReturnTypeWillChange]
+	function rewind()
 	{
 		$this->position = 0;
 	}
 
-	public function valid()
+	#[\ReturnTypeWillChange]
+	function valid()
 	{
 		$this->parse();
 
 		return isset($this->collectionOffsets[$this->position]);
 	}
 
-	public function count()
+	#[\ReturnTypeWillChange]
+	function count()
 	{
 		$this->parse();
 

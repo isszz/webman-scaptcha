@@ -8,7 +8,7 @@ if (!function_exists('scaptcha')) {
      */
     function scaptcha(array|string $config = []): string
     {
-        if(is_string($config) && config('scaptcha.'. $config)) {
+        if(is_string($config) && is_array(config('plugin.isszz.webman-scaptcha.app.'. $config))) {
             $config = ['type' => $config];
         }
 
@@ -24,13 +24,13 @@ if (!function_exists('scaptcha_api')) {
      */
     function scaptcha_api(array|string $config = [], $type = false): array
     {
-        if(is_string($config) && config('scaptcha.'. $config)) {
+        if(is_string($config) && is_array(config('plugin.isszz.webman-scaptcha.app.'. $config))) {
             $config = ['type' => $config];
         }
 
         $captcha = Captcha::create($config, true);
 
-        return [$captcha->getToken(), $captcha->base64($type ? 2 : 1)];
+        return [$captcha->getToken(), $captcha->image($type ? 2 : 1)];
     }
 }
 
@@ -56,7 +56,7 @@ if (!function_exists('scaptcha_src')) {
         $confs = [];
         foreach ($config as $key => $value) {
             if (isset($defaults[$key])) {
-                $confs[] = $key . '/' . $value ?: $defaults[$key];
+                $confs[] = $key . '/' . ($value ?: $defaults[$key]);
             }
         }
 
@@ -96,6 +96,6 @@ if (!function_exists('scaptcha_check')) {
      */
     function scaptcha_check(string|int|float $value, string|null $token = null): bool
     {
-        return Captcha::check($value, $token);
+        return Captcha::check((string) $value, $token);
     }
 }

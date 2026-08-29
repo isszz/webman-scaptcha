@@ -5,7 +5,7 @@
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
-namespace isszz\captcha\font\lib\Table;
+namespace isszz\captcha\font\lib\table;
 
 use isszz\captcha\font\lib\truetype\File;
 use isszz\captcha\font\lib\Font;
@@ -37,41 +37,46 @@ class DirectoryEntry extends BinaryStream
 
 	protected $origF;
 
-	public static function computeChecksum($data)
+	/**
+	 * @param string $data
+	 *
+	 * @return int
+	 */
+	static function computeChecksum($data)
 	{
-		$len = strlen($data);
+		$len = mb_strlen($data, '8bit');
 		$mod = $len % 4;
 
 		if ($mod) {
 			$data = str_pad($data, $len + (4 - $mod), "\0");
 		}
 
-	    $table = unpack("N*", $data);
-	    return array_sum($table);
+		$table = unpack("N*", $data);
+		return array_sum($table);
 	}
 
-	public function __construct(File $font)
+	function __construct(File $font)
 	{
 		$this->font = $font;
 		$this->f    = $font->f;
 	}
 
-	public function parse()
+	function parse()
 	{
 		$this->tag = $this->font->read(4);
 	}
 
-	public function open($filename, $mode = self::modeRead)
+	public function open($filename, $mode = self::modeRead): bool
 	{
-		// void
+		return true;
 	}
 
-	public function setTable(Table $font_table)
+	function setTable(Table $font_table)
 	{
 		$this->font_table = $font_table;
 	}
 
-	public function encode($entry_offset)
+	function encode($entry_offset)
 	{
 		Font::d("\n==== $this->tag ====");
 		//Font::d("Entry offset  = $entry_offset");
@@ -82,7 +87,7 @@ class DirectoryEntry extends BinaryStream
 		$table_offset = $font->pos();
 		$this->offset = $table_offset;
 		$table_length = $data->encode();
-		
+
 		$font->seek($table_offset + $table_length);
 		$pad = 0;
 		$mod = $table_length % 4;
@@ -109,27 +114,28 @@ class DirectoryEntry extends BinaryStream
 	/**
 	 * @return File
 	 */
-	public function getFont() {
+	function getFont()
+	{
 		return $this->font;
 	}
 
-	public function startRead() {
+	function startRead()
+	{
 		$this->font->seek($this->offset);
 	}
 
-	public function endRead()
+	function endRead()
 	{
 		//
 	}
 
-	public function startWrite()
+	function startWrite()
 	{
 		$this->font->seek($this->offset);
 	}
 
-	public function endWrite()
+	function endWrite()
 	{
 		//
 	}
 }
-

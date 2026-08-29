@@ -16,24 +16,29 @@ class Random
     public function captchaText ($options): string
     {
         if (is_numeric($options)) {
-            $options['size'] = $options;
+            $options = ['size' => (int) $options];
         }
 
-        $options = $options ?: [];
-    
-        $size = $options['size'] ?: 4;
-        $ignoreChars = $options['ignoreChars'] ?: '';
+        if (!is_array($options)) {
+            $options = [];
+        }
+
+        $size = $options['size'] ?? 4;
+        $ignoreChars = $options['ignoreChars'] ?? '';
 
         $i = -1;
         $out = '';
         
-        $chars = $options['char'];
+        $chars = $options['char'] ?? 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     
         if ($ignoreChars) {
             $chars = $this->stripCharsFromString($chars, $ignoreChars);
         }
     
         $len = Str::strlen($chars) - 1;
+        if ($len < 0) {
+            return '';
+        }
     
         while (++$i < $size) {
             $out .= $chars[self::randomInt(0, $len)];
@@ -51,17 +56,11 @@ class Random
      */
     public function stripCharsFromString (string $string, string $chars = ''): string
     {
-        $array = str_split($string);
-
-        foreach($array as $key => $char) {
-            if(stripos($chars, $char) === false) {
-                continue;
-            }
-            
-            $array[$key] = $char;
+        if ($chars === '' || $string === '') {
+            return $string;
         }
 
-        return implode('', $array);
+        return preg_replace('/[' . preg_quote($chars, '/') . ']/iu', '', $string) ?? $string;
     }
 
     /**
@@ -118,9 +117,14 @@ class Random
      */
     public function mathExprDiv(int $leftNumber, int $rightNumber): array
     {
-        $answer = $leftNumber / $rightNumber;
+        if ($rightNumber === 0) {
+            $rightNumber = 1;
+        }
+
+        $answer = intdiv($leftNumber, $rightNumber);
+        $leftNumber = $answer * $rightNumber;
         $equation = $leftNumber . '/' . $rightNumber . '=';
-        
+
         return [(string) $answer, $equation];
     } 
     
@@ -137,8 +141,6 @@ class Random
         $min = $min ?: 1;
         $max = $max ?: 9;
 
-        $operator = $operator ?: '+';
-
         $left = random_int($min, $max);
         $right = random_int($min, $max);
 
@@ -152,12 +154,14 @@ class Random
             case '/':
                 return $this->mathExprDiv($left, $right);
             default:
-                return \isszz\captcha\support\Arr::get([
+                $operations = [
                     $this->mathExprPlus($left, $right),
                     $this->mathExprMinus($left, $right),
                     $this->mathExprMul($left, $right),
                     $this->mathExprDiv($left, $right),
-                ], (rand(1, 4) % 2));
+                ];
+
+                return $operations[random_int(0, 3)];
         }
     }
 
@@ -173,15 +177,10 @@ class Random
         $min = $min ?: 1;
         $max = $max ?: 9;
 
-        $int = bin2hex((string) self::randomInt($min, $max));
+        $int = max(0, min(255, self::randomInt($min, $max)));
+        $hex = sprintf('%02x', $int);
 
-        $color = "#{$int}{$int}{$int}";
-
-        if (strlen($color) > 7) {
-            $color = substr($color, 0, 7);
-        }
-        
-        return $color;
+        return "#{$hex}{$hex}{$hex}";
     }
     
     /**
@@ -201,7 +200,7 @@ class Random
 
         $saturation = self::randomInt(60, 80) / 100;
 
-        $bgLightness = is_null($bgColor) ? 1.0 : $this->getLightness($bgColor);
+        $bgLightness = $bgColor === null ? 1.0 : $this->getLightness($bgColor);
 
         if ($bgLightness >= 0.5) {
             $minLightness = (int) round($bgLightness * 100) - 45;
@@ -222,38 +221,24 @@ class Random
         $b = floor($this->hue2rgb($p, $q, $hue - (1 / 3)) * 255);
         /* eslint-disable no-mixed-operators */
 
-        // dd([$r, $g, $b]);
-        $color = ($b | $g << 8 | $r << 16) | 1 << 24;
-        $color = dechex($color);
-        $color = substr($color, 1);
-
-        return '#' . $color;
+        return sprintf('#%02x%02x%02x', $r, $g, $b);
     }
 
     public function getLightness($rgbColor)
     {
-        $rgbColor = str_split($rgbColor);
-
-        if ($rgbColor[0] !== '#') {
+        if (!is_string($rgbColor) || !str_starts_with($rgbColor, '#')) {
             return 1.0;
         }
 
-        $rgbColor = array_slice($rgbColor, 1);
-
-        if (is_array($rgbColor) && count($rgbColor) === 3) {
-            $rgbColor = [
-                $rgbColor[0],
-                $rgbColor[0],
-                $rgbColor[1],
-                $rgbColor[1],
-                $rgbColor[2],
-                $rgbColor[2],
-            ];
+        $hex = substr($rgbColor, 1);
+        if (strlen($hex) === 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        if (!preg_match('/^[0-9a-fA-F]{6}$/', $hex)) {
+            return 1.0;
         }
 
-        $rgbColor = implode('', $rgbColor);
-
-        $hexColor = hexdec("{$rgbColor}");
+        $hexColor = hexdec($hex);
 
         $r = $hexColor >> 16;
         $g = $hexColor >> 8 & 255;
@@ -282,11 +267,30 @@ class Random
     
     public static function randomInt(int $min = 0, int $max = 0): int
     {
-        return (int) round($min + (self::random() * ($max - $min)));
+        $min = $min ?: 0;
+        $max = $max ?: 0;
+
+        if ($min > $max) {
+            [$min, $max] = [$max, $min];
+        }
+
+        if ($min === $max) {
+            return $min;
+        }
+
+        return random_int($min, $max);
     }
 
     public static function random(int $min = 0, int $max = 1): float
     {
-        return $min + mt_rand() / mt_getrandmax() * ($max - $min);
+        if ($min > $max) {
+            [$min, $max] = [$max, $min];
+        }
+
+        if ($min === $max) {
+            return (float) $min;
+        }
+
+        return $min + (random_int(0, PHP_INT_MAX) / PHP_INT_MAX) * ($max - $min);
     }
 }

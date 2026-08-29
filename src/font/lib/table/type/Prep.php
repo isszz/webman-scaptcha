@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * @package php-font-lib
+ * @link    https://github.com/dompdf/php-font-lib
+ * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ */
+
+namespace isszz\captcha\font\lib\table\type;
+
+use isszz\captcha\font\lib\table\Table;
+
+/**
+ * `prep` font table.
+ *
+ * @package php-font-lib
+ */
+class Prep extends Table
+{
+	private $rawData;
+
+	protected function _parse()
+	{
+		$font = $this->getFont();
+		$font->seek($this->entry->offset);
+		$this->rawData = $font->read($this->entry->length);
+	}
+
+	function _encode()
+	{
+		return $this->getFont()->write($this->rawData, $this->entry->length);
+	}
+}

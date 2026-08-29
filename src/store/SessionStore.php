@@ -34,9 +34,17 @@ class SessionStore extends Store
 			return [];
 		}
 
-		($payload['d'] ?? false) && $session->delete(self::TOKEN_PRE . $token);
+		$data = json_decode($payload, true);
 
-		return json_decode($payload, true);
+		if(!is_array($data)) {
+			return [];
+		}
+
+		if (!empty($data['d'])) {
+			$session->delete(self::TOKEN_PRE . $token);
+		}
+
+		return $data;
 	}
 
 	/**
@@ -46,11 +54,11 @@ class SessionStore extends Store
 	 * @param string|int $disposable
 	 * @return string
 	 */
-	public function put(string|int $text, string|int $disposable): string
+	public function put(string|int $text, string|int|bool $disposable): string
 	{
 		[$token, $payload] = $this->buildPayload($text, $disposable);
 
-		\request()->session()->put(self::TOKEN_PRE . $token, $payload, $this->ttl);
+		\request()->session()->set(self::TOKEN_PRE . $token, $payload);
 
 		return $token;
 	}

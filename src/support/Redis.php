@@ -15,9 +15,10 @@ class Redis
         'host'       => '127.0.0.1',
         'port'       => 6379,
         'password'   => '',
-        'database'     => 0,
+        'database'   => 0,
         'timeout'    => 0,
         'persistent' => false,
+        'expire'     => 0,
     ];
 
     protected static object|null $connection = null;
@@ -30,7 +31,7 @@ class Redis
             throw new \BadFunctionCallException('Please install the Redis extension!');
         }
 
-        if (!is_null($this->handler)) {
+        if ($this->handler !== null) {
             return;
         }
 
@@ -39,6 +40,11 @@ class Redis
         } 
 
         $this->options = array_merge($this->options, (array) $options);
+
+        if (isset($this->options['select'])) {
+            $this->options['database'] = (int) $this->options['select'];
+            unset($this->options['select']);
+        }
 
         $this->handler = new \Redis;
 
@@ -68,7 +74,7 @@ class Redis
 
     public static function connection(?array $config = []): self
     {
-        if(is_null(self::$connection)) {
+        if (self::$connection === null) {
             self::$connection = new static($config);
         }
 
@@ -109,11 +115,11 @@ class Redis
      */
     public function put(string $key, mixed $value, int $expire = null): bool
     {
-        if (is_null($expire)) {
+        if ($expire === null) {
             $expire = $this->options['expire'];
         }
 
-        if (is_null($expire)) {
+        if ($expire === null) {
             $this->handler->set($key, $value);
         } else {
             $this->handler->setex($key, $expire, serialize($value));

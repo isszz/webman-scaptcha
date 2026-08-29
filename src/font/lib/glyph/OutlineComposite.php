@@ -220,7 +220,7 @@ class OutlineComposite extends Outline
 	{
 		$contours = [];
 
-		/** @var \FontLib\Table\Type\glyf $glyph_data */
+		/** @var \isszz\captcha\font\lib\table\type\Glyf $glyph_data */
 		$glyph_data = $this->getFont()->getTableObject("glyf");
 
 		/** @var Outline[] $glyphs */

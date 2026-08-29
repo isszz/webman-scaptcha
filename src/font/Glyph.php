@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace isszz\captcha\font;
 
@@ -24,14 +25,16 @@ class Glyph
         }
 
         $contours = $this->getContours($points);
+        $contourCount = count($contours);
 
-        for ($contourIndex = 0; $contourIndex < count($contours); ++$contourIndex) {
+        for ($contourIndex = 0; $contourIndex < $contourCount; ++$contourIndex) {
             $contour = $contours[$contourIndex];
-    
+            $pointCount = count($contour);
+
             $prev = null;
-            $curr = $contour[count($contour) - 1];
+            $curr = $contour[$pointCount - 1];
             $next = $contour[0];
-    
+
             if ($curr['onCurve']) {
                 $this->path->moveTo($curr['x'], $curr['y']);
             } else {
@@ -46,19 +49,19 @@ class Glyph
                     $this->path->moveTo($start['x'], $start['y']);
                 }
             }
-    
-            for ($i = 0; $i < count($contour); ++$i) {
+
+            for ($i = 0; $i < $pointCount; ++$i) {
                 $prev = $curr;
                 $curr = $next;
-                $next = $contour[($i + 1) % count($contour)];
-    
+                $next = $contour[($i + 1) % $pointCount];
+
                 if ($curr['onCurve']) {
                     // This is a straight line.
                     $this->path->lineTo($curr['x'], $curr['y']);
                 } else {
                     $prev2 = $prev;
                     $next2 = $next;
-    
+
                     if (!$prev['onCurve']) {
                         $prev2 = [
                             'x' => ($curr['x'] + $prev['x']) * 0.5,
@@ -66,15 +69,14 @@ class Glyph
                         ];
                         $this->path->lineTo($prev2['x'], $prev2['y']);
                     }
-    
+
                     if (!$next['onCurve']) {
                         $next2 = [
                             'x' => ($curr['x'] + $next['x']) * 0.5,
                             'y' => ($curr['y'] + $next['y']) * 0.5
                         ];
                     }
-    
-                    $this->path->lineTo($prev2['x'], $prev2['y']);
+
                     $this->path->quadraticCurveTo($curr['x'], $curr['y'], $next2['x'], $next2['y']);
                 }
             }
@@ -105,7 +107,8 @@ class Glyph
         if (!$xScale) $xScale = $scale;
         if (!$yScale) $yScale = $scale;
 
-        for ($i = 0; $i < count($commands); $i += 1) {
+        $commandCount = count($commands);
+        for ($i = 0; $i < $commandCount; $i += 1) {
             $cmd = $commands[$i];
             if ($cmd['type'] == 'M') {
                 $path->moveTo(
@@ -144,7 +147,8 @@ class Glyph
     public function getContours($points) {
         $contours = [];
         $currentContour = [];
-        for ($i = 0; $i < count($points); $i += 1) {
+        $pointCount = count($points);
+        for ($i = 0; $i < $pointCount; $i += 1) {
             $pt = $points[$i];
             $currentContour[] = $pt;
             if ($pt['endOfContour']) {
@@ -153,7 +157,7 @@ class Glyph
             }
         }
 
-        if(!empty($currentContour) && count($currentContour) !== 0) {
+        if (!empty($currentContour)) {
             throw new CaptchaException('There are still points left in the current contour.');
         }
     

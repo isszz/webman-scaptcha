@@ -5,7 +5,7 @@
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
-namespace isszz\captcha\font\lib\Table;
+namespace isszz\captcha\font\lib\table;
 
 use isszz\captcha\font\lib\truetype\File;
 use isszz\captcha\font\lib\Font;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package php-font-lib
  * @link    https://github.com/PhenX/php-font-lib
@@ -7,6 +8,7 @@
  */
 
 namespace isszz\captcha\font\lib\table\type;
+
 use isszz\captcha\font\lib\table\Table;
 
 /**
@@ -16,30 +18,30 @@ use isszz\captcha\font\lib\table\Table;
  */
 class Cmap extends Table
 {
-	private static array $header_format = [
+	private static $header_format = [
 		"version"         => self::uint16,
 		"numberSubtables" => self::uint16,
 	];
 
-	private static array $subtable_header_format = [
+	private static $subtable_header_format = [
 		"platformID"         => self::uint16,
 		"platformSpecificID" => self::uint16,
 		"offset"             => self::uint32,
 	];
 
-	private static array $subtable_v2_format = [
+	private static $subtable_v2_format = [
 		"length"        => self::uint16,
 		"language"      => self::uint16
 	];
 
-	private static array $subtable_v2_format_subheader = [
+	private static $subtable_v2_format_subheader = [
 		"firstCode"     => self::uint16,
 		"entryCount"    => self::uint16,
 		"idDelta"       => self::int16,
 		"idRangeOffset" => self::uint16
 	];
 
-	private static array $subtable_v4_format = [
+	private static $subtable_v4_format = [
 		"length"        => self::uint16,
 		"language"      => self::uint16,
 		"segCountX2"    => self::uint16,
@@ -48,13 +50,13 @@ class Cmap extends Table
 		"rangeShift"    => self::uint16,
 	];
 
-	private static array $subtable_v12_format = [
+	private static $subtable_v12_format = [
 		"length"        => self::uint32,
 		"language"      => self::uint32,
 		"ngroups"       => self::uint32
 	];
 
-	protected function _parse(): void
+	protected function _parse()
 	{
 		$font = $this->getFont();
 
@@ -88,7 +90,9 @@ class Cmap extends Table
 				case 2:
 					$subtable += $font->unpack(self::$subtable_v2_format);
 
-					$subHeaderKeys = array_map(fn($val) => $val / 8, $font->readUInt16Many(256));
+					$subHeaderKeys = array_map(function ($val) {
+						return $val / 8;
+					}, $font->readUInt16Many(256));
 					$subHeaders = [];
 
 					$glyphIdArray = [];
@@ -181,8 +185,7 @@ class Cmap extends Table
 
 							if ($ro == 0) {
 								$gid = ($c + $d) & 0xFFFF;
-							}
-							else {
+							} else {
 								$offset = ($c - $c1) * 2 + $ro;
 								$offset = $ro_start + 2 * $i + $offset;
 
@@ -244,7 +247,7 @@ class Cmap extends Table
 		$this->data = $data;
 	}
 
-	public function _encode(): int
+	function _encode()
 	{
 		$font = $this->getFont();
 

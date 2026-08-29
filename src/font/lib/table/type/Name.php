@@ -67,7 +67,7 @@ class Name extends Table
 		19 => "SampleText",
 	];
 
-	static $platforms = [
+	static $platforms = 	[
 		0 => "Unicode",
 		1 => "Macintosh",
 		// 2 =>  Reserved
@@ -151,17 +151,15 @@ class Name extends Table
 
 			$records[] = $record;
 		}
-		
+
 		$system_encodings = mb_list_encodings();
 		$system_encodings = array_change_key_case(array_fill_keys($system_encodings, true), CASE_UPPER);
 
 		$names = [];
 		foreach ($records as $record) {
 			$font->seek($tableOffset + $data["stringOffset"] + $record->offset);
-
-
 			$record->stringRaw = $font->read($record->length);
-			
+
 			$encoding = null;
 			switch ($record->platformID) {
 				case 3:
@@ -192,12 +190,11 @@ class Name extends Table
 			if ($encoding === null) {
 				$encoding = "UTF-16";
 			}
-			
+
 			$record->string = mb_convert_encoding($record->stringRaw, "UTF-8", $encoding);
 			if (strpos($record->string, "\0") !== false) {
 				$record->string = str_replace("\0", "", $record->string);
 			}
-			
 			$names[$record->nameID] = $record;
 		}
 
@@ -220,11 +217,11 @@ class Name extends Table
 		$length = $font->pack(self::$header_format, $this->data);
 
 		$offset = 0;
-		
-		/** @var nameRecord[] $records_to_encode */
+
+		/** @var NameRecord[] $records_to_encode */
 		$records_to_encode = [];
 		foreach ($records as $record) {
-			$encoded_record = new nameRecord();
+			$encoded_record = new NameRecord();
 			$encoded_record->platformID = 3;
 			$encoded_record->platformSpecificID = 1;
 			$encoded_record->languageID = $record->languageID;
@@ -233,11 +230,11 @@ class Name extends Table
 			$encoded_record->string = $record->string;
 			$encoded_record->length = mb_strlen($encoded_record->getUTF16(), "8bit");
 			$records_to_encode[] = $encoded_record;
-			
+
 			$offset += $encoded_record->length;
-			$length += $font->pack(nameRecord::$format, (array)$encoded_record);
+			$length += $font->pack(NameRecord::$format, (array)$encoded_record);
 		}
-		
+
 		foreach ($records_to_encode as $record) {
 			$str = $record->getUTF16();
 			$length += $font->write($str, mb_strlen($str, "8bit"));

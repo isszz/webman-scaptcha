@@ -1,11 +1,11 @@
 <?php
 
-namespace isszz\captcha;
+namespace isszz\captcha\font\lib;
 
 class FontLibException extends \Exception
 {
-    public function __construct($message = null)
+    public function __construct($message = '')
     {
-        !is_null($message) && $this->message = $message;
+        parent::__construct($message);
     }
 }

@@ -28,7 +28,7 @@ class Arr
      */
     public static function add(array $array, $key, $value): array
     {
-        if (is_null(static::get($array, $key))) {
+        if (static::get($array, $key) === null) {
             static::set($array, $key, $value);
         }
 
@@ -45,7 +45,7 @@ class Arr
      */
     public static function get(array $array, $key, $default = null)
     {
-        if (is_null($key)) {
+        if ($key === null) {
             return $array;
         }
 
@@ -74,7 +74,7 @@ class Arr
      */
     public static function has(array $array, $key): bool
     {
-        if (empty($array) || is_null($key)) {
+        if (empty($array) || $key === null) {
             return false;
         }
 
@@ -105,7 +105,7 @@ class Arr
      */
     public static function set(array &$array, $key, $value): array
     {
-        if (is_null($key)) {
+        if ($key === null) {
             return $array = $value;
         }
 

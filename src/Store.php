@@ -33,13 +33,13 @@ abstract class Store implements StoreInterface
         $this->ttl = $ttl;
     }
 
-    public function buildPayload(string|int $text, string|int $disposable = 0): array
+    public function buildPayload(string|int $text, string|int|bool $disposable = 0): array
     {
-        $ua = request()->header('User-Agent');
+        $ua = (string) request()->header('User-Agent');
 
         $payload = json_encode([
             'text' => $text,
-            'ip' => request()->getRealIp(),
+            'ip' => request()->getRealIp(true),
             'ua' => crc32($ua),
             'ttl' => time() + $this->ttl,
             'd' => $disposable,
@@ -51,6 +51,6 @@ abstract class Store implements StoreInterface
     }
 
     abstract public function get(string $token): array;
-    abstract public function put(string|int $text, string|int $disposable): string;
+    abstract public function put(string|int $text, string|int|bool $disposable): string;
     abstract public function forget(string $token): bool;
 }

@@ -109,13 +109,9 @@ class Captcha
      */
     public function __construct()
     {
-        // $this->session = \session();
-
         if (\config('app.debug')) {
             $this->mctime();
         }
-
-        return $this;
     }
 
     /**
@@ -186,8 +182,11 @@ class Captcha
         $height = $this->config['height'];
 
         $background = 'transparent';
-        if($this->config['background'] && $this->config['background'] != 'transparent') {
-            $background = '#'. $this->config['background'];
+        if (!empty($this->config['background']) && $this->config['background'] !== 'transparent') {
+            $bg = ltrim((string) $this->config['background'], '#');
+            if (preg_match('/^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/', $bg)) {
+                $background = '#'. $bg;
+            }
         }
         
         $rect = '<rect width="100%" height="100%" fill="'. $background .'"/>';
@@ -234,6 +233,8 @@ class Captcha
      */
     public function check(string $code, string|null $token = null): bool
     {
+        $code = mb_strtolower($code, 'UTF-8');
+
         $this->config = $this->config();
 
         // 携带token则已api模式验证
@@ -260,15 +261,13 @@ class Captcha
                 throw new CaptchaException('Captcha error.');
             }
 
-            if($code == $payload['text']) {
+            if($code === $payload['text']) {
                 // 验证成功删除token
                 $this->store()->forget($token);
                 return true;
             }
 
             throw new CaptchaException('Captcha Validation failed.');
-
-            return false;
         }
 
         // 普通session模式
@@ -278,7 +277,7 @@ class Captcha
 
         $hash = \session()->get('scaptcha');
 
-        $text = is_null($hash) ? null : $this->encrypter()->decrypt($hash);
+        $text = $hash === null ? null : $this->encrypter()->decrypt($hash);
 
         // 检测URL里设置一次性验证码
         if ($text && str_contains($text, '!')) {
@@ -288,7 +287,7 @@ class Captcha
 
         $res = $code === $text;
 
-        if ($res || ($this->config['disposable'] && $this->config['disposable'] == 2)) {
+        if ($res || $this->config['disposable'] == 2) {
             \session()->delete('scaptcha');
         }
 
@@ -307,16 +306,21 @@ class Captcha
         $width = (int) $width;
         $height = (int) $height;
 
-        $min = isset($this->config['inverse']) ? 7 : 1;
-        $max = isset($this->config['inverse']) ? 15 : 9;
+        if (!empty($this->config['inverse'])) {
+            $min = 7;
+            $max = 15;
+        } else {
+            $min = 1;
+            $max = 9;
+        }
 
         $i = -1;
         $noiseLines = [];
         while (++$i < $this->config['noise']) {
             $start = Random::randomInt(1, 21) . ' ' . Random::randomInt(1, $height - 1);
             $end = Random::randomInt($width - 21, $width - 1) . ' ' . Random::randomInt(1, $height - 1);
-            $mid1 = Random::randomInt(($width / 2) - 21, ($width / 2) + 21) . ' ' . Random::randomInt(1, $height - 1);
-            $mid2 = Random::randomInt(($width / 2) - 21, ($width / 2) + 21) . ' ' . Random::randomInt(1, $height - 1);
+            $mid1 = Random::randomInt((int) (($width / 2) - 21), (int) (($width / 2) + 21)) . ' ' . Random::randomInt(1, $height - 1);
+            $mid2 = Random::randomInt((int) (($width / 2) - 21), (int) (($width / 2) + 21)) . ' ' . Random::randomInt(1, $height - 1);
 
             $color = $this->config['color'] ? $this->random->color() : $this->random->greyColor($min, $max);
 
@@ -403,7 +407,7 @@ class Captcha
      */
     private function store(): object|null
     {
-        if(!is_null($this->store)) {
+        if ($this->store !== null) {
             return $this->store;
         }
 
@@ -434,7 +438,7 @@ class Captcha
      */
     private function encrypter(): object
     {
-        if(!is_null($this->encrypter)) {
+        if ($this->encrypter !== null) {
             return $this->encrypter;
         }
 
@@ -482,14 +486,10 @@ class Captcha
     {
         if($this->svg) {
             if ($type == 1) {
-                return 'data:image/svg+xml,'. str_replace(
-                    ['"', '%', '#', '{', '}', '<', '>'],
-                    ["'", '%25', '%23', '%7B', '%7D', '%3C', '%3E'],
-                    $this->svg
-                );
+                return 'data:image/svg+xml,'. rawurlencode($this->svg);
             }
 
-            return 'data:image/svg+xml;base64,'. chunk_split(base64_encode($this->svg));
+            return 'data:image/svg+xml;base64,'. base64_encode($this->svg);
         }
 
         return '';

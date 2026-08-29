@@ -10,7 +10,9 @@
     ],
     "require": {
         "php": ">=8.0.0",
+        "ext-bcmath": "*",
         "ext-mbstring": "*",
+        "ext-openssl": "*",
         "workerman/webman-framework": ">=1.4"
     },
     "autoload": {

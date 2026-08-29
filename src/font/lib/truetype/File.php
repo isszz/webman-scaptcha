@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package php-font-lib
  * @link    https://github.com/PhenX/php-font-lib
@@ -41,80 +42,346 @@ class File extends BinaryStream
 	public $glyph_all = [];
 
 	static $macCharNames = [
-		".notdef", ".null", "CR",
-		"space", "exclam", "quotedbl", "numbersign",
-		"dollar", "percent", "ampersand", "quotesingle",
-		"parenleft", "parenright", "asterisk", "plus",
-		"comma", "hyphen", "period", "slash",
-		"zero", "one", "two", "three",
-		"four", "five", "six", "seven",
-		"eight", "nine", "colon", "semicolon",
-		"less", "equal", "greater", "question",
-		"at", "A", "B", "C", "D", "E", "F", "G",
-		"H", "I", "J", "K", "L", "M", "N", "O",
-		"P", "Q", "R", "S", "T", "U", "V", "W",
-		"X", "Y", "Z", "bracketleft",
-		"backslash", "bracketright", "asciicircum", "underscore",
-		"grave", "a", "b", "c", "d", "e", "f", "g",
-		"h", "i", "j", "k", "l", "m", "n", "o",
-		"p", "q", "r", "s", "t", "u", "v", "w",
-		"x", "y", "z", "braceleft",
-		"bar", "braceright", "asciitilde", "Adieresis",
-		"Aring", "Ccedilla", "Eacute", "Ntilde",
-		"Odieresis", "Udieresis", "aacute", "agrave",
-		"acircumflex", "adieresis", "atilde", "aring",
-		"ccedilla", "eacute", "egrave", "ecircumflex",
-		"edieresis", "iacute", "igrave", "icircumflex",
-		"idieresis", "ntilde", "oacute", "ograve",
-		"ocircumflex", "odieresis", "otilde", "uacute",
-		"ugrave", "ucircumflex", "udieresis", "dagger",
-		"degree", "cent", "sterling", "section",
-		"bullet", "paragraph", "germandbls", "registered",
-		"copyright", "trademark", "acute", "dieresis",
-		"notequal", "AE", "Oslash", "infinity",
-		"plusminus", "lessequal", "greaterequal", "yen",
-		"mu", "partialdiff", "summation", "product",
-		"pi", "integral", "ordfeminine", "ordmasculine",
-		"Omega", "ae", "oslash", "questiondown",
-		"exclamdown", "logicalnot", "radical", "florin",
-		"approxequal", "increment", "guillemotleft", "guillemotright",
-		"ellipsis", "nbspace", "Agrave", "Atilde",
-		"Otilde", "OE", "oe", "endash",
-		"emdash", "quotedblleft", "quotedblright", "quoteleft",
-		"quoteright", "divide", "lozenge", "ydieresis",
-		"Ydieresis", "fraction", "currency", "guilsinglleft",
-		"guilsinglright", "fi", "fl", "daggerdbl",
-		"periodcentered", "quotesinglbase", "quotedblbase", "perthousand",
-		"Acircumflex", "Ecircumflex", "Aacute", "Edieresis",
-		"Egrave", "Iacute", "Icircumflex", "Idieresis",
-		"Igrave", "Oacute", "Ocircumflex", "applelogo",
-		"Ograve", "Uacute", "Ucircumflex", "Ugrave",
-		"dotlessi", "circumflex", "tilde", "macron",
-		"breve", "dotaccent", "ring", "cedilla",
-		"hungarumlaut", "ogonek", "caron", "Lslash",
-		"lslash", "Scaron", "scaron", "Zcaron",
-		"zcaron", "brokenbar", "Eth", "eth",
-		"Yacute", "yacute", "Thorn", "thorn",
-		"minus", "multiply", "onesuperior", "twosuperior",
-		"threesuperior", "onehalf", "onequarter", "threequarters",
-		"franc", "Gbreve", "gbreve", "Idot",
-		"Scedilla", "scedilla", "Cacute", "cacute",
-		"Ccaron", "ccaron", "dmacron"
+		".notdef",
+		".null",
+		"CR",
+		"space",
+		"exclam",
+		"quotedbl",
+		"numbersign",
+		"dollar",
+		"percent",
+		"ampersand",
+		"quotesingle",
+		"parenleft",
+		"parenright",
+		"asterisk",
+		"plus",
+		"comma",
+		"hyphen",
+		"period",
+		"slash",
+		"zero",
+		"one",
+		"two",
+		"three",
+		"four",
+		"five",
+		"six",
+		"seven",
+		"eight",
+		"nine",
+		"colon",
+		"semicolon",
+		"less",
+		"equal",
+		"greater",
+		"question",
+		"at",
+		"A",
+		"B",
+		"C",
+		"D",
+		"E",
+		"F",
+		"G",
+		"H",
+		"I",
+		"J",
+		"K",
+		"L",
+		"M",
+		"N",
+		"O",
+		"P",
+		"Q",
+		"R",
+		"S",
+		"T",
+		"U",
+		"V",
+		"W",
+		"X",
+		"Y",
+		"Z",
+		"bracketleft",
+		"backslash",
+		"bracketright",
+		"asciicircum",
+		"underscore",
+		"grave",
+		"a",
+		"b",
+		"c",
+		"d",
+		"e",
+		"f",
+		"g",
+		"h",
+		"i",
+		"j",
+		"k",
+		"l",
+		"m",
+		"n",
+		"o",
+		"p",
+		"q",
+		"r",
+		"s",
+		"t",
+		"u",
+		"v",
+		"w",
+		"x",
+		"y",
+		"z",
+		"braceleft",
+		"bar",
+		"braceright",
+		"asciitilde",
+		"Adieresis",
+		"Aring",
+		"Ccedilla",
+		"Eacute",
+		"Ntilde",
+		"Odieresis",
+		"Udieresis",
+		"aacute",
+		"agrave",
+		"acircumflex",
+		"adieresis",
+		"atilde",
+		"aring",
+		"ccedilla",
+		"eacute",
+		"egrave",
+		"ecircumflex",
+		"edieresis",
+		"iacute",
+		"igrave",
+		"icircumflex",
+		"idieresis",
+		"ntilde",
+		"oacute",
+		"ograve",
+		"ocircumflex",
+		"odieresis",
+		"otilde",
+		"uacute",
+		"ugrave",
+		"ucircumflex",
+		"udieresis",
+		"dagger",
+		"degree",
+		"cent",
+		"sterling",
+		"section",
+		"bullet",
+		"paragraph",
+		"germandbls",
+		"registered",
+		"copyright",
+		"trademark",
+		"acute",
+		"dieresis",
+		"notequal",
+		"AE",
+		"Oslash",
+		"infinity",
+		"plusminus",
+		"lessequal",
+		"greaterequal",
+		"yen",
+		"mu",
+		"partialdiff",
+		"summation",
+		"product",
+		"pi",
+		"integral",
+		"ordfeminine",
+		"ordmasculine",
+		"Omega",
+		"ae",
+		"oslash",
+		"questiondown",
+		"exclamdown",
+		"logicalnot",
+		"radical",
+		"florin",
+		"approxequal",
+		"increment",
+		"guillemotleft",
+		"guillemotright",
+		"ellipsis",
+		"nbspace",
+		"Agrave",
+		"Atilde",
+		"Otilde",
+		"OE",
+		"oe",
+		"endash",
+		"emdash",
+		"quotedblleft",
+		"quotedblright",
+		"quoteleft",
+		"quoteright",
+		"divide",
+		"lozenge",
+		"ydieresis",
+		"Ydieresis",
+		"fraction",
+		"currency",
+		"guilsinglleft",
+		"guilsinglright",
+		"fi",
+		"fl",
+		"daggerdbl",
+		"periodcentered",
+		"quotesinglbase",
+		"quotedblbase",
+		"perthousand",
+		"Acircumflex",
+		"Ecircumflex",
+		"Aacute",
+		"Edieresis",
+		"Egrave",
+		"Iacute",
+		"Icircumflex",
+		"Idieresis",
+		"Igrave",
+		"Oacute",
+		"Ocircumflex",
+		"applelogo",
+		"Ograve",
+		"Uacute",
+		"Ucircumflex",
+		"Ugrave",
+		"dotlessi",
+		"circumflex",
+		"tilde",
+		"macron",
+		"breve",
+		"dotaccent",
+		"ring",
+		"cedilla",
+		"hungarumlaut",
+		"ogonek",
+		"caron",
+		"Lslash",
+		"lslash",
+		"Scaron",
+		"scaron",
+		"Zcaron",
+		"zcaron",
+		"brokenbar",
+		"Eth",
+		"eth",
+		"Yacute",
+		"yacute",
+		"Thorn",
+		"thorn",
+		"minus",
+		"multiply",
+		"onesuperior",
+		"twosuperior",
+		"threesuperior",
+		"onehalf",
+		"onequarter",
+		"threequarters",
+		"franc",
+		"Gbreve",
+		"gbreve",
+		"Idot",
+		"Scedilla",
+		"scedilla",
+		"Cacute",
+		"cacute",
+		"Ccaron",
+		"ccaron",
+		"dmacron"
 	];
 
-	public function getTable()
+	private function uniord(string $c, ?string $encoding = null)
+	{
+		if (function_exists("mb_ord")) {
+			if (PHP_VERSION_ID < 80000 && $encoding === null) {
+				// in PHP < 8 the encoding argument, if supplied, must be a valid encoding
+				$encoding = "UTF-8";
+			}
+			return mb_ord($c, $encoding);
+		}
+
+		if ($encoding != "UTF-8" && $encoding !== null) {
+			$c = mb_convert_encoding($c, "UTF-8", $encoding);
+		}
+
+		$length = mb_strlen(mb_substr($c, 0, 1), '8bit');
+		$ord = false;
+		$bytes = [];
+		$numbytes = 1;
+		for ($i = 0; $i < $length; $i++) {
+			$o = \ord($c[$i]); // get one string character at time
+			if (\count($bytes) === 0) { // get starting octect
+				if ($o <= 0x7F) {
+					$ord = $o;
+					$numbytes = 1;
+				} elseif (($o >> 0x05) === 0x06) { // 2 bytes character (0x06 = 110 BIN)
+					$bytes[] = ($o - 0xC0) << 0x06;
+					$numbytes = 2;
+				} elseif (($o >> 0x04) === 0x0E) { // 3 bytes character (0x0E = 1110 BIN)
+					$bytes[] = ($o - 0xE0) << 0x0C;
+					$numbytes = 3;
+				} elseif (($o >> 0x03) === 0x1E) { // 4 bytes character (0x1E = 11110 BIN)
+					$bytes[] = ($o - 0xF0) << 0x12;
+					$numbytes = 4;
+				} else {
+					$ord = false;
+					break;
+				}
+			} elseif (($o >> 0x06) === 0x02) { // bytes 2, 3 and 4 must start with 0x02 = 10 BIN
+				$bytes[] = $o - 0x80;
+				if (\count($bytes) === $numbytes) {
+					// compose UTF-8 bytes to a single unicode value
+					$o = $bytes[0];
+					for ($j = 1; $j < $numbytes; $j++) {
+						$o += ($bytes[$j] << (($numbytes - $j - 1) * 0x06));
+					}
+					if ((($o >= 0xD800) and ($o <= 0xDFFF)) or ($o >= 0x10FFFF)) {
+						// The definition of UTF-8 prohibits encoding character numbers between
+						// U+D800 and U+DFFF, which are reserved for use with the UTF-16
+						// encoding form (as surrogate pairs) and do not directly represent
+						// characters.
+						return false;
+					} else {
+						$ord = $o; // add char to array
+					}
+					// reset data for next char
+					$bytes = [];
+					$numbytes = 1;
+				}
+			} else {
+				$ord = false;
+				break;
+			}
+		}
+
+		return $ord;
+	}
+
+	function getTable()
 	{
 		$this->parseTableEntries();
 
 		return $this->directory;
 	}
 
-	public function setTableOffset($offset)
+	function setTableOffset($offset)
 	{
 		$this->tableOffset = $offset;
 	}
 
-	public function parse()
+	function parse()
 	{
 		$this->parseTableEntries();
 
@@ -127,9 +394,9 @@ class File extends BinaryStream
 		}
 	}
 
-	public function utf8toUnicode($str)
+	function utf8toUnicode($str)
 	{
-		$len = strlen($str);
+		$len = mb_strlen($str, '8bit');
 		$out = [];
 
 		for ($i = 0; $i < $len; $i++) {
@@ -156,11 +423,11 @@ class File extends BinaryStream
 		return $out;
 	}
 
-	public function getUnicodeCharMap()
+	function getUnicodeCharMap()
 	{
 		$subtable = null;
 		foreach ($this->getData("cmap", "subtables") as $_subtable) {
-			if ($_subtable["platformID"] == 0 || $_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 1) {
+			if ($_subtable["platformID"] == 0 || ($_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 1)) {
 				$subtable = $_subtable;
 				break;
 			}
@@ -170,10 +437,55 @@ class File extends BinaryStream
 			return $subtable["glyphIndexArray"];
 		}
 
+		$system_encodings = mb_list_encodings();
+		$system_encodings = array_change_key_case(array_fill_keys($system_encodings, true), CASE_UPPER);
+		foreach ($this->getData("cmap", "subtables") as $_subtable) {
+			$encoding = null;
+			switch ($_subtable["platformID"]) {
+				case 3:
+					switch ($_subtable["platformSpecificID"]) {
+						case 2:
+							if (\array_key_exists("SJIS", $system_encodings)) {
+								$encoding = "SJIS";
+							}
+							break;
+						case 3:
+							if (\array_key_exists("GB18030", $system_encodings)) {
+								$encoding = "GB18030";
+							}
+							break;
+						case 4:
+							if (\array_key_exists("BIG-5", $system_encodings)) {
+								$encoding = "BIG-5";
+							}
+							break;
+						case 5:
+							if (\array_key_exists("UHC", $system_encodings)) {
+								$encoding = "UHC";
+							}
+							break;
+					}
+					break;
+			}
+			if ($encoding) {
+				$glyphIndexArray = [];
+				foreach ($_subtable["glyphIndexArray"] as $c => $gid) {
+					$str = trim(pack("N", $c));
+					if (\strlen($str) > 0) {
+						$ord = $this->uniord($str, $encoding);
+						if ($ord > 0) {
+							$glyphIndexArray[$ord] = $gid;
+						}
+					}
+				}
+				return $glyphIndexArray;
+			}
+		}
+
 		return null;
 	}
 
-	public function setSubset($subset)
+	function setSubset($subset)
 	{
 		if (!is_array($subset)) {
 			$subset = $this->utf8toUnicode($subset);
@@ -201,17 +513,17 @@ class File extends BinaryStream
 			$gids[$gid] = $gid;
 		}
 
-		/** @var Glyf $glyf */
+		/** @var glyf $glyf */
 		$glyf = $this->getTableObject("glyf");
-		$gids = $glyf->getGlyphIDs($gids);
-
-		sort($gids);
-
-		$this->glyph_subset = $gids;
+		if ($glyf) {
+			$gids = $glyf->getGlyphIDs($gids);
+			sort($gids);
+			$this->glyph_subset = $gids;
+		}
 		$this->glyph_all    = array_values($glyphIndexArray); // FIXME
 	}
 
-	public function getSubset()
+	function getSubset()
 	{
 		if (empty($this->glyph_subset)) {
 			return $this->glyph_all;
@@ -220,16 +532,15 @@ class File extends BinaryStream
 		return $this->glyph_subset;
 	}
 
-	public function encode($tags = [])
+	function encode($tags = [])
 	{
 		if (!self::$raw) {
-			$tags = array_merge(["head", "hhea", "cmap", "hmtx", "maxp", "glyf", "loca", "name", "post"], $tags);
+			$tags = array_merge(["head", "hhea", "cmap", "hmtx", "maxp", "glyf", "loca", "name", "post", "cvt ", "fpgm", "prep"], $tags);
 		} else {
 			$tags = array_keys($this->directory);
 		}
 
-		$num_tables = count($tags);
-		$n = 16; // @todo
+		$n          = 16; // @todo
 
 		Font::d("Tables : " . implode(", ", $tags));
 
@@ -243,7 +554,7 @@ class File extends BinaryStream
 
 			$entries[$tag] = $this->directory[$tag];
 		}
-		
+
 		$num_tables = count($entries);
 		$exponent = floor(log($num_tables, 2));
 		$power_of_two = pow(2, $exponent);
@@ -265,7 +576,7 @@ class File extends BinaryStream
 		}
 	}
 
-	public function parseHeader()
+	function parseHeader()
 	{
 		if (!empty($this->header)) {
 			return;
@@ -277,13 +588,13 @@ class File extends BinaryStream
 		$this->header->parse();
 	}
 
-	public function getFontType()
+	function getFontType()
 	{
 		$class_parts = explode("\\", get_class($this));
-		return $class_parts[4];
+		return $class_parts[count($class_parts) - 2];
 	}
 
-	public function parseTableEntries()
+	function parseTableEntries()
 	{
 		$this->parseHeader();
 
@@ -295,9 +606,9 @@ class File extends BinaryStream
 			return;
 		}
 
-		$type = $this->getFontType();
 
-		$class = "isszz\\captcha\\font\\lib\\$type\\TableDirectoryEntry";
+		$type = $this->getFontType();
+		$class = "\\isszz\\captcha\\font\\lib\\$type\\TableDirectoryEntry";
 
 		for ($i = 0; $i < $this->header->data["numTables"]; $i++) {
 			/** @var TableDirectoryEntry $entry */
@@ -308,7 +619,7 @@ class File extends BinaryStream
 		}
 	}
 
-	public function normalizeFUnit($value, $base = 1000)
+	function normalizeFUnit($value, $base = 1000)
 	{
 		return round($value * ($base / $this->getData("head", "unitsPerEm")));
 	}
@@ -318,20 +629,21 @@ class File extends BinaryStream
 		$this->parseTableEntries();
 
 		if (!self::$raw) {
-			$name_canon = ucfirst(preg_replace("/[^a-z0-9]/", "", strtolower($tag)));
-			
-			$class = "isszz\\captcha\\font\\lib\\table\\type\\$name_canon";
+			$name_canon = preg_replace("/[^a-z0-9]/", "", strtolower($tag));
 
-			if (!isset($this->directory[$tag]) || !@class_exists($class)) {
+			$class = "\\isszz\\captcha\\font\\lib\\table\\type\\" . ucfirst($name_canon);
+
+			if (!isset($this->directory[$tag]) || !class_exists($class)) {
 				return;
 			}
 		} else {
-			$class = "isszz\\captcha\\font\\lib\\table\\Table";
+			$class = "\\isszz\\captcha\\font\\lib\\table\\Table";
 		}
 
 		/** @var Table $table */
 		$table = new $class($this->directory[$tag]);
 		$table->parse();
+
 		$this->data[$tag] = $table;
 	}
 
@@ -342,7 +654,10 @@ class File extends BinaryStream
 	 */
 	public function getTableObject($name)
 	{
-		return $this->data[$name];
+		if (\array_key_exists($name, $this->data)) {
+			return $this->data[$name];
+		}
+		return null;
 	}
 
 	public function setTableObject($name, Table $data)
@@ -369,12 +684,12 @@ class File extends BinaryStream
 		}
 	}
 
-	public function addDirectoryEntry(DirectoryEntry $entry)
+	function addDirectoryEntry(DirectoryEntry $entry)
 	{
 		$this->directory[$entry->tag] = $entry;
 	}
 
-	public function saveAdobeFontMetrics($file, $encoding = null)
+	function saveAdobeFontMetrics($file, $encoding = null)
 	{
 		$afm = new AdobeFontMetrics($this);
 		$afm->write($file, $encoding);
@@ -387,9 +702,9 @@ class File extends BinaryStream
 	 *
 	 * @return string|null
 	 */
-	public function getNameTableString($nameID)
+	function getNameTableString($nameID)
 	{
-		/** @var nameRecord[] $records */
+		/** @var NameRecord[] $records */
 		$records = $this->getData("name", "records");
 
 		if (!isset($records[$nameID])) {
@@ -404,7 +719,7 @@ class File extends BinaryStream
 	 *
 	 * @return string|null
 	 */
-	public function getFontCopyright()
+	function getFontCopyright()
 	{
 		return $this->getNameTableString(name::NAME_COPYRIGHT);
 	}
@@ -414,7 +729,7 @@ class File extends BinaryStream
 	 *
 	 * @return string|null
 	 */
-	public function getFontName()
+	function getFontName()
 	{
 		return $this->getNameTableString(name::NAME_NAME);
 	}
@@ -424,7 +739,7 @@ class File extends BinaryStream
 	 *
 	 * @return string|null
 	 */
-	public function getFontSubfamily()
+	function getFontSubfamily()
 	{
 		return $this->getNameTableString(name::NAME_SUBFAMILY);
 	}
@@ -434,7 +749,7 @@ class File extends BinaryStream
 	 *
 	 * @return string|null
 	 */
-	public function getFontSubfamilyID()
+	function getFontSubfamilyID()
 	{
 		return $this->getNameTableString(name::NAME_SUBFAMILY_ID);
 	}
@@ -444,7 +759,7 @@ class File extends BinaryStream
 	 *
 	 * @return string|null
 	 */
-	public function getFontFullName()
+	function getFontFullName()
 	{
 		return $this->getNameTableString(name::NAME_FULL_NAME);
 	}
@@ -454,7 +769,7 @@ class File extends BinaryStream
 	 *
 	 * @return string|null
 	 */
-	public function getFontVersion()
+	function getFontVersion()
 	{
 		return $this->getNameTableString(name::NAME_VERSION);
 	}
@@ -464,7 +779,7 @@ class File extends BinaryStream
 	 *
 	 * @return string|null
 	 */
-	public function getFontWeight()
+	function getFontWeight()
 	{
 		return $this->getTableObject("OS/2")->data["usWeightClass"];
 	}
@@ -474,21 +789,21 @@ class File extends BinaryStream
 	 *
 	 * @return string|null
 	 */
-	public function getFontPostscriptName()
+	function getFontPostscriptName()
 	{
-		return $this->getNameTableString(Name::NAME_POSTSCRIPT_NAME);
+		return $this->getNameTableString(name::NAME_POSTSCRIPT_NAME);
 	}
 
-	public function reduce()
+	function reduce()
 	{
 		$names_to_keep = [
-			Name::NAME_COPYRIGHT,
-			Name::NAME_NAME,
-			Name::NAME_SUBFAMILY,
-			Name::NAME_SUBFAMILY_ID,
-			Name::NAME_FULL_NAME,
-			Name::NAME_VERSION,
-			Name::NAME_POSTSCRIPT_NAME,
+			name::NAME_COPYRIGHT,
+			name::NAME_NAME,
+			name::NAME_SUBFAMILY,
+			name::NAME_SUBFAMILY_ID,
+			name::NAME_FULL_NAME,
+			name::NAME_VERSION,
+			name::NAME_POSTSCRIPT_NAME,
 		];
 
 		foreach ($this->data["name"]->data["records"] as $id => $rec) {

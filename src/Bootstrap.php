@@ -19,7 +19,7 @@ class Bootstrap implements WebmanBootstrap
 
     public static function __callStatic($name, $arguments)
     {
-        return static::instance()->{$name}(... $arguments);
+        return static::$_instance->{$name}(... $arguments);
     }
 }
 

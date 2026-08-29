@@ -64,7 +64,19 @@ class Str
 	 */
 	public static function random($length, $type = 'alnum')
 	{
-		return substr(str_shuffle(str_repeat(static::pool($type), 5)), 0, $length);
+		$pool = static::pool($type);
+		$max = mb_strlen($pool, 'UTF-8') - 1;
+
+		if ($max < 0) {
+			return '';
+		}
+
+		$random = '';
+		for ($i = 0; $i < $length; $i++) {
+			$random .= mb_substr($pool, random_int(0, $max), 1, 'UTF-8');
+		}
+
+		return $random;
 	}
 
 	/**
