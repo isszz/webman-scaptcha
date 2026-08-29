@@ -199,7 +199,7 @@ class Cmap extends Table
 			$prevGid  = $gid;
 		}
 
-		$segments[][] = [0xFFFF, 0xFFFF];
+		$segments[][] = [0xFFFF, null];
 
 		$startCode = [];
 		$endCode   = [];
