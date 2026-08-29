@@ -248,7 +248,7 @@ class Captcha
                 throw new CaptchaException('Captcha timeout.');
             }
 
-            if(!isset($payload['ip']) || request()->ip() !== $payload['ip']) {
+            if(!isset($payload['ip']) || request()->getRealIp(true) !== $payload['ip']) {
                 throw new CaptchaException('The IP address has been changed. The verification failed.');
             }
 
