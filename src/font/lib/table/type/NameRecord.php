@@ -24,6 +24,7 @@ class NameRecord extends BinaryStream
 	public $length;
 	public $offset;
 	public $string;
+	public $stringRaw;
 
 	public static $format = [
 		"platformID"         => self::uint16,
