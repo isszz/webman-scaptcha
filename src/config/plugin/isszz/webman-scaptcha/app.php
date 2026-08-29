@@ -16,8 +16,8 @@ return [
     'height' => 50, // 高度
     'noise' => 5, // 干扰线条的数量
     'inverse' => false, // 反转颜色
-    'color' => true, // 文字是否随机色
-    'background' => 'fefefe', // 验证码背景色
+    'color' => true, // 文字颜色：1随机，0灰度，或颜色代码如 07f
+    'background' => 'fefefe', // 背景颜色：transparent 透明，或颜色代码
     'size' => 4, // 验证码字数
     'ignoreChars' => '', // 验证码字符中排除
     'fontSize' => 72, // 字体大小

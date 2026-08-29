@@ -184,6 +184,26 @@ class Random
     }
     
     /**
+     * 解析并标准化颜色代码
+     *
+     * @param string $color
+     * @return string|null 返回 #rrggbb 格式，解析失败返回 null
+     */
+    public static function parseColor(string $color): ?string
+    {
+        $hex = ltrim($color, '#');
+        if (!preg_match('/^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/', $hex)) {
+            return null;
+        }
+
+        if (strlen($hex) === 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+
+        return '#' . strtolower($hex);
+    }
+
+    /**
      * 获取随机色
      *
      * https://github.com/jquery/jquery-color/blob/master/jquery.color.js#L432

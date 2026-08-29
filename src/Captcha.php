@@ -25,8 +25,8 @@ class Captcha
         'height' => 50,
         'noise' => 5, // 干扰线条的数量
         'inverse' => false, // 反转颜色
-        'color' => false, // 文字是否随机色
-        'background' => 'fefefe', // 验证码背景色
+        'color' => false, // 文字颜色：1随机，0灰度，或颜色代码如 07f
+        'background' => 'fefefe', // 背景颜色：transparent 透明，或颜色代码
         'size' => 4, // 验证码字数
         'ignoreChars' => '', // 验证码字符中排除
         'fontSize' => 72, // 字体大小
@@ -183,9 +183,9 @@ class Captcha
 
         $background = 'transparent';
         if (!empty($this->config['background']) && $this->config['background'] !== 'transparent') {
-            $bg = ltrim((string) $this->config['background'], '#');
-            if (preg_match('/^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/', $bg)) {
-                $background = '#'. $bg;
+            $parsed = Random::parseColor((string) $this->config['background']);
+            if ($parsed !== null) {
+                $background = $parsed;
             }
         }
         
@@ -322,12 +322,45 @@ class Captcha
             $mid1 = Random::randomInt((int) (($width / 2) - 21), (int) (($width / 2) + 21)) . ' ' . Random::randomInt(1, $height - 1);
             $mid2 = Random::randomInt((int) (($width / 2) - 21), (int) (($width / 2) + 21)) . ' ' . Random::randomInt(1, $height - 1);
 
-            $color = $this->config['color'] ? $this->random->color() : $this->random->greyColor($min, $max);
+            $color = $this->getColor($min, $max);
 
             $noiseLines[] = '<path d="M' . $start . ' C' . $mid1 . ',' . $mid2 . ',' . $end . '" stroke="' . $color . '" fill="none"/>';
         }
 
         return $noiseLines;
+    }
+
+    /**
+     * 根据 color 配置返回颜色
+     *
+     * @param int $min
+     * @param int $max
+     * @param string|null $bgColor
+     * @return string
+     */
+    private function getColor(int $min = 0, int $max = 0, ?string $bgColor = null): string
+    {
+        $color = $this->config['color'];
+
+        // 1 / true: 随机色
+        if ($color === true || $color === 1 || (is_string($color) && in_array(strtolower($color), ['1', 'true', 'on', 'yes'], true))) {
+            return $this->random->color($bgColor);
+        }
+
+        // 0 / false: 灰度
+        if ($color === false || $color === 0 || $color === '' || $color === null || (is_string($color) && in_array(strtolower($color), ['0', 'false', 'off', 'no'], true))) {
+            return $this->random->greyColor($min, $max);
+        }
+
+        // 固定颜色代码
+        if (is_string($color)) {
+            $parsed = Random::parseColor($color);
+            if ($parsed !== null) {
+                return $parsed;
+            }
+        }
+
+        return $this->random->greyColor($min, $max);
     }
 
     /**
@@ -377,7 +410,7 @@ class Captcha
 
             $charPath = $this->ch2path->get($text[$i], $opts);
 
-            $color = $this->config['color'] ? $this->random->color() : $this->random->greyColor($min, $max);
+            $color = $this->getColor($min, $max);
             $out[] = '<path fill="' . $color . '" d="' . $charPath . '"/>';
         }
 

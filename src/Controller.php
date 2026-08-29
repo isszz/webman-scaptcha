@@ -143,8 +143,8 @@ class Controller
 			's' => 'fontSize', // 文字大小
 			'l' => 'size', // 显示文字数量, 非算数模式有效
 			'n' => 'noise', // 干扰线条数量
-			'c' => 'color', // 文字是否随机色
-			'b' => 'background', // 背景色, fefefe
+			'c' => 'color', // 文字颜色：1随机，0灰度，也可传颜色代码如 07f
+			'b' => 'background', // 背景颜色：transparent 透明，也可传颜色代码
 			'd' => 'disposable', // 是否一次性验证码
 		];
 

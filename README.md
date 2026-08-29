@@ -42,8 +42,8 @@ return [
     'height' => 50, // 高度
     'noise' => 5, // 干扰线条的数量
     'inverse' => false, // 反转颜色
-    'color' => true, // 文字是否随机色
-    'background' => '', // 验证码背景色
+    'color' => true, // 文字颜色：1随机，0灰度，或颜色代码如 07f
+    'background' => '', // 背景颜色：transparent 透明，或颜色代码
     'size' => 4, // 验证码字数
     'ignoreChars' => '', // 验证码字符中排除
     'fontSize' => 52, // 字体大小
@@ -89,8 +89,8 @@ return [
          /s/字体大小
          /l/非运算模式时，文字数量
          /n/干扰线条数量
-         /c/文字是否随机色
-         /b/背景颜色
+         /c/文字颜色：1随机，0灰度，或颜色代码如 07f
+         /b/背景颜色：transparent 透明，或颜色代码
          /d/一次性验证码（忽略对错），非API模式需要设置2
          /cs/api模式输出格式1=svg，2=base64
          /rt/禁用缓存字形，生产模式不建议禁用
@@ -144,7 +144,7 @@ tp模板文件中使用
 ```php
 [$token, $image] = scaptcha_api([
     'noise' => 3, // 3条干扰线
-    'color' => false, // 灰色模式
+    'color' => false, // 0灰度，1随机，或颜色代码如 07f
     'char' => '0123456789', // 数字验证码
 ]);
 
